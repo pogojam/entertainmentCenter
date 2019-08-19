@@ -1,0 +1,20 @@
+{
+  "pages": [
+    {
+      "path": "Home",
+      "name": "Home"
+    },
+    {
+      "path": "Movies",
+      "name": "Movies"
+    },
+    {
+      "path": "Music",
+      "name": "Music"
+    },
+    {
+      "path": "Storage",
+      "name": "Storage"
+    }
+  ]
+}

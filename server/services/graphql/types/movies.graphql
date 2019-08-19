@@ -1,0 +1,45 @@
+scalar DATE
+
+type Query {
+  getMovies: [Movie]
+}
+
+type Mutation {
+  addMovie(title: String): Movie
+  getMovies: [Movie]
+}
+
+type Rating {
+  source: String
+  value: String
+}
+
+type Movie {
+  Title: String
+  Year: String
+  Rated: String
+  Released: String
+  Runtime: String
+  Genre: String
+  Director: String
+  Writer: String
+  Actors: String
+  Plot: String
+  Language: String
+  Awards: String
+  Poster: String
+  Ratings: [Rating]
+  Metascore: Int
+  imdbRating: Float
+  imdbVotes: Int
+  imdbID: String
+  Type: String
+  DVD: DATE
+  BoxOffice: String
+  Production: String
+  Website: String
+  Response: Boolean
+  RawName: String
+  FileExtension: String
+  Path: String
+}
