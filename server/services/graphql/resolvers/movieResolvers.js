@@ -19,6 +19,14 @@ module.exports = {
       const snapshot = await database.collection("movies").get();
       snapshot.forEach(e => movies.push(e.data()));
       return movies;
+    },
+    getGenre: (obj, { title }, { database }) => {
+      const extension = "/genre/movie/list";
+      try {
+        const data = axio.get(omdbPath + extension);
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
   Mutation: {

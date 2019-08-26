@@ -9,7 +9,7 @@ const stream = ss.createStream();
 export default function Music() {
   const [player, togglePlayer] = useState(false);
   const [src, setSrc] = useState(false);
-  const audioContext = new AudioContext();
+  // const audioContext = new AudioContext();
   const parts = [];
 
   const handleClick = e => {

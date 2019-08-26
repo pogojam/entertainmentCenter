@@ -1,0 +1,8 @@
+type Query {
+  getGenre: [Genre]
+}
+
+type Genre {
+  name: String
+  id: ID
+}

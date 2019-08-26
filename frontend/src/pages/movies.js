@@ -65,9 +65,7 @@ const MoviePreview = ({ playMovie, data }) => {
         colorOne={[0, 0, 0]}
         colorTwo={[255, 255, 255]}
       />
-      <Heading fontSize={[5]} py="3em">
-        {Title}
-      </Heading>
+
       {inspect && <MainPreview {...data} />}
     </Card>
   );
@@ -89,7 +87,7 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
         <Heading p="3em">{Title}</Heading>
         <Card>
           <Text>{Year}</Text>
-          <Text>{Plot}</Text>
+          <Text px="8em">{Plot}</Text>
           <Text>{Awards}</Text>
         </Card>
       </Box>
@@ -110,13 +108,13 @@ const Slider = ({ togglePlayer, categories }) => {
   !loading && console.log(data, error);
 
   return (
-    <Box bg="#fd0101" my="5em" p=".5em" style={{ height: "40vh" }} width="100%">
+    <>
       <Heading>{categories}</Heading>
       {!loading &&
         data.map(e => (
           <MoviePreview key={e.Title} data={e} playMovie={handleClick} />
         ))}
-    </Box>
+    </>
   );
 };
 
@@ -126,9 +124,9 @@ export default function Movies() {
   // const {loading,error,data}  = useQuery(queryCategories)
 
   const data = [{ categories: "dfs" }];
-
+  console.log(player, upload);
   return (
-    <div>
+    <Box bg="#fd0101" my="5em" p=".5em" style={{ height: "40vh" }} width="100%">
       {data.map(({ categories }) => {
         return (
           <Slider
@@ -149,6 +147,6 @@ export default function Movies() {
       </Button>
       {player && <VideoPlayer />}
       {upload && <Upload toggle={toggleUpload} />}
-    </div>
+    </Box>
   );
 }
