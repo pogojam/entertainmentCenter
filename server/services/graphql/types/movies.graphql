@@ -1,12 +1,11 @@
 scalar DATE
 
 type Query {
-  getMovies: [Movie]
+  getMovies(input: String): [Movie]
 }
 
 type Mutation {
   addMovie(title: String): Movie
-  getMovies: [Movie]
 }
 
 type Rating {

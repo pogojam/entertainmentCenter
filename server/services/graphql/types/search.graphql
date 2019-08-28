@@ -1,5 +1,5 @@
 type Query {
-  getGenre: [Genre]
+  getMovielist: [Genre]
 }
 
 type Genre {

@@ -1,5 +1,7 @@
 const DATE = require("graphql-iso-date");
 const axio = require("axios");
+const genres = require("../../../routes/library/genres.json");
+const _ = require("lodash");
 
 console.log(process.env.OMBD);
 const omdbPath = `http://www.omdbapi.com/?apikey=${process.env.OMBD}&`;
@@ -14,14 +16,25 @@ const getMovie = title => {
 module.exports = {
   DATE,
   Query: {
-    getMovies: async (obj, query, { database }) => {
+    getMovies: async (obj, { input }, { database }) => {
       const movies = [];
       const snapshot = await database.collection("movies").get();
-      snapshot.forEach(e => movies.push(e.data()));
+      // const snapshot = await database
+      //   .collection("movies")
+      //   .where("Genre", "array-contains", input)
+      //   .get();
+
+      snapshot.forEach(e => {
+        if (e.data().Genre.includes(input)) {
+          movies.push(e.data());
+        }
+      });
       return movies;
     },
-    getGenre: (obj, { title }, { database }) => {
+    getMovielist: (obj, { title }, { database }) => {
       const extension = "/genre/movie/list";
+
+      console.log(genres);
       try {
         const data = axio.get(omdbPath + extension);
       } catch (err) {

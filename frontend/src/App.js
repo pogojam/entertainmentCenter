@@ -13,7 +13,7 @@ const client = new ApolloClient({
 
 function App() {
   return (
-    <div className="App">
+    <div style={{ overflowY: "scroll" }} className="App">
       <ApolloProvider client={client}>
         <AppRouter />
       </ApolloProvider>

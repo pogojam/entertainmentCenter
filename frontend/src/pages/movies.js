@@ -1,18 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Upload, VideoPlayer } from "../components/upload";
 import { Box, Image, Flex, Button, Card, Heading, Text } from "rebass";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import genres from "../library/genres.json";
 import gql from "graphql-tag";
-import { useSpring, animated } from "react-spring";
+import { useSpring, animated, interpolate } from "react-spring";
 import ImageFilter from "react-image-filter";
 
 const queryMovies = gql`
-  {
-    getMovies {
+  query getMovies($input: String) {
+    getMovies(input: $input) {
       Title
       Rated
       Year
       Awards
+      Genre
       Plot
       Poster
     }
@@ -25,49 +27,50 @@ const queryMovies = gql`
 //   }
 // `;
 
-const MoviePreview = ({ playMovie, data }) => {
-  const { Poster, Title } = data;
+const MoviePreview = ({ playMovie, data, handleClick }) => {
+  const { Poster } = data;
+  const propsBackground = useSpring({ size: 1, from: { size: 3 } });
 
-  const [inspect, toggleInspect] = useState(false);
-  const handleClick = () => toggleInspect(!inspect);
+  const Container = animated(Flex);
 
-  const props = useSpring({ size: 1, from: { size: 3 } });
+  const containerRef = useRef(null);
 
-  const Background = animated(ImageFilter);
+  const trans = (x, y, s) =>
+    `perspective(600px) rotateX(${x}deg) rotateY(${y}deg) scale(${s})`;
+
+  const [props, set] = useSpring(() => ({
+    xys: [0, 0, 1],
+    config: { mass: 5, tension: 350, friction: 40 }
+  }));
+
+  const calc = (x, y) => [
+    -(y - containerRef.current.clientHeight / 2) / 20,
+    (x - containerRef.current.clientWidth / 2) / 20,
+    1.1
+  ];
 
   return (
-    <Card
-      style={{
-        height: "100%",
-        color: "white",
-        position: "relative",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column"
-      }}
+    <Container
       borderRadius="3px"
       maxWidth="20vw"
-      onClick={handleClick}
+      ref={containerRef}
+      onClick={() => handleClick(data)}
+      onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
+      onMouseLeave={() => set({ xys: [0, 0, 1] })}
       className="animated fadeIn"
+      style={{ transform: props.xys.interpolate(trans) }}
     >
-      <Background
+      <Image
+        src={Poster}
+        borderRadius="3px"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
           height: "100%",
           zIndex: "-1",
-          transform: `scale(${props.size})`
+          transform: `scale(${propsBackground.size})`,
+          boxShadow: "-2px 0px 14px 0px rgba(0,0,0,0.75)"
         }}
-        preserveAspectRatio="cover"
-        image={Poster}
-        filter={"duotone"}
-        colorOne={[0, 0, 0]}
-        colorTwo={[255, 255, 255]}
       />
-
-      {inspect && <MainPreview {...data} />}
-    </Card>
+    </Container>
   );
 };
 
@@ -75,17 +78,15 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
   return (
     <Flex
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        height: "80vh",
+        height: "60vh",
+        width: "100%",
         backgroundColor: "black",
-        zIndex: -5
+        zIndex: 2
       }}
     >
       <Box>
         <Heading p="3em">{Title}</Heading>
-        <Card>
+        <Card color="white">
           <Text>{Year}</Text>
           <Text px="8em">{Plot}</Text>
           <Text>{Awards}</Text>
@@ -96,24 +97,48 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
   );
 };
 
-const Slider = ({ togglePlayer, categories }) => {
-  const handleClick = () => togglePlayer(true);
-
+const Slider = ({ handleClick, category }) => {
   const {
     loading,
     error,
     data: { getMovies: data }
-  } = useQuery(queryMovies);
+  } = useQuery(queryMovies, {
+    variables: { input: category }
+  });
 
-  !loading && console.log(data, error);
+  !loading && console.log(data, category, error);
 
   return (
     <>
-      <Heading>{categories}</Heading>
-      {!loading &&
-        data.map(e => (
-          <MoviePreview key={e.Title} data={e} playMovie={handleClick} />
-        ))}
+      {!loading && data.length > 0 && (
+        <Flex
+          bg="#fd0101"
+          my="5em"
+          p=".5em"
+          style={{
+            height: "40vh",
+            position: "relative"
+          }}
+          width="100%"
+        >
+          <Heading
+            color="white"
+            fontWeight={100}
+            pl="2em"
+            style={{ position: "absolute", left: 0, top: "-2em" }}
+          >
+            {category}
+          </Heading>
+          {data.map(e => (
+            <MoviePreview
+              key={e.Title}
+              data={e}
+              handleClick={handleClick}
+              playMovie={handleClick}
+            />
+          ))}
+        </Flex>
+      )}
     </>
   );
 };
@@ -121,26 +146,33 @@ const Slider = ({ togglePlayer, categories }) => {
 export default function Movies() {
   const [upload, toggleUpload] = useState(false);
   const [player, togglePlayer] = useState(false);
-  // const {loading,error,data}  = useQuery(queryCategories)
+  const [inspect, toggleInspect] = useState(false);
 
-  const data = [{ categories: "dfs" }];
-  console.log(player, upload);
+  const categories = genres;
+
   return (
-    <Box bg="#fd0101" my="5em" p=".5em" style={{ height: "40vh" }} width="100%">
-      {data.map(({ categories }) => {
-        return (
-          <Slider
-            key={categories}
-            togglePlayer={togglePlayer}
-            name={categories}
-          />
-        );
-      })}
+    <Box>
+      <MainPreview {...inspect} />
+      <Box>
+        {categories.map((category, i) => {
+          return (
+            <Slider
+              handleClick={toggleInspect}
+              key={categories + i}
+              togglePlayer={togglePlayer}
+              category={category}
+            />
+          );
+        })}
+      </Box>
       <Button
         bg="#000000"
         color="#22ce99"
         onClick={() => toggleUpload(!upload)}
-        style={{ position: "absolute", bottom: "0" }}
+        style={{
+          position: "fixed",
+          bottom: "-3px"
+        }}
       >
         {" "}
         Contribute
