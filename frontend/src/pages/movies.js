@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, memo } from "react";
 import { Upload, VideoPlayer } from "../components/upload";
 import { Box, Image, Flex, Button, Card, Heading, Text } from "rebass";
 import { useQuery, useMutation } from "@apollo/react-hooks";
@@ -27,18 +27,12 @@ const queryMovies = gql`
   }
 `;
 
-// const queryCategories = gql`
-//   getCategories{
-
-//   }
-// `;
-
-const MoviePreview = ({ playMovie, data, handleClick }) => {
+const MoviePreview = memo(Props => {
+  const { data, handleClick } = Props;
+  console.log("New Set", Props);
   const { Poster } = data;
   const propsBackground = useSpring({ size: 1, from: { size: 3 } });
-
   const Container = animated(Flex);
-
   const containerRef = useRef(null);
 
   const trans = (x, y, s) =>
@@ -59,8 +53,8 @@ const MoviePreview = ({ playMovie, data, handleClick }) => {
     <Container
       borderRadius="3px"
       ref={containerRef}
-      onClick={() => {
-        return handleClick(data);
+      onClick={e => {
+        handleClick(data);
       }}
       onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
       onMouseLeave={() => set({ xys: [0, 0, 1] })}
@@ -79,7 +73,7 @@ const MoviePreview = ({ playMovie, data, handleClick }) => {
       />
     </Container>
   );
-};
+});
 
 const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
   const ImageContainer = animated(styled(Image)`
@@ -97,6 +91,9 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
   const [loading, setLoad] = useState(true);
   useEffect(() => {
     loading && setLoad(!loading);
+    return () => {
+      setLoad();
+    };
   }, [loading]);
 
   const transitions = useTransition(loading, null, {
@@ -144,13 +141,16 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
         {transitions.map(
           ({ item, key, props }) =>
             item && (
-              <ImageContainer
-                key={key}
-                borderRadius={"6px"}
-                m="3em"
-                style={props}
-                src={Poster}
-              />
+              <>
+                <ImageContainer
+                  key={key}
+                  borderRadius={"6px"}
+                  m="3em"
+                  style={props}
+                  src={Poster}
+                />
+                {console.log("dsfsd", item)}
+              </>
             )
         )}
       </Card>
@@ -166,7 +166,6 @@ const Slider = ({ handleClick, category }) => {
   } = useQuery(queryMovies, {
     variables: { input: category }
   });
-
   return (
     <>
       {!loading && data.length > 0 && (
@@ -188,13 +187,8 @@ const Slider = ({ handleClick, category }) => {
           >
             {category}
           </Heading>
-          {data.map(e => (
-            <MoviePreview
-              key={e.Title}
-              data={e}
-              handleClick={handleClick}
-              playMovie={handleClick}
-            />
+          {data.map((e, i) => (
+            <MoviePreview key={i} data={e} handleClick={handleClick} />
           ))}
         </Flex>
       )}
