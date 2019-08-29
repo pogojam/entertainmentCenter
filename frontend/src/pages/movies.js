@@ -27,10 +27,11 @@ const queryMovies = gql`
   }
 `;
 
-const MoviePreview = memo(Props => {
-  const { data, handleClick } = Props;
-  console.log("New Set", Props);
-  const { Poster } = data;
+const useAnimation = item => {
+  const [items, addItem] = useState([]);
+};
+
+const MoviePreview = memo(({ handleClick, ...data }) => {
   const propsBackground = useSpring({ size: 1, from: { size: 3 } });
   const Container = animated(Flex);
   const containerRef = useRef(null);
@@ -54,6 +55,7 @@ const MoviePreview = memo(Props => {
       borderRadius="3px"
       ref={containerRef}
       onClick={e => {
+        console.log(data);
         handleClick(data);
       }}
       onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
@@ -62,7 +64,7 @@ const MoviePreview = memo(Props => {
       style={{ transform: props.xys.interpolate(trans) }}
     >
       <Image
-        src={Poster}
+        src={data.Poster}
         borderRadius="3px"
         style={{
           height: "100%",
@@ -75,7 +77,17 @@ const MoviePreview = memo(Props => {
   );
 });
 
-const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
+const MainPreview = ({
+  img,
+  Year,
+  Plot,
+  Poster,
+  Awards,
+  Title,
+  togglePlayer
+}) => {
+  const containerRef = useRef(null);
+
   const ImageContainer = animated(styled(Image)`
     &::before {
       content: "";
@@ -88,22 +100,22 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
     }
   `);
 
-  const [loading, setLoad] = useState(true);
-  useEffect(() => {
-    loading && setLoad(!loading);
-    return () => {
-      setLoad();
-    };
-  }, [loading]);
+  console.log(Poster);
 
-  const transitions = useTransition(loading, null, {
-    from: { opacity: 0, transform: "translateX(-100%)" },
-    enter: { opacity: 1, transform: "translateX(0)" },
-    leave: { opacity: 1, transform: "translateX(0)" }
+  useEffect(() => {
+    const scrollBox = document.querySelector(".App");
+    containerRef.current.addEventListener("mousewheel", e => {
+      scrollBox.scrollTop += e.deltaY;
+    });
   });
+
+  const playerOptions = {
+    fullScreen: true
+  };
 
   return (
     <Flex
+      ref={containerRef}
       style={{
         height: "60vh",
         width: "100%",
@@ -113,20 +125,30 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
         background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
-      <Box p="3em">
-        <Heading color="#d6d6d6" p="1em" m="3em" mb="1em">
+      <Box p="3em" style={{ maxWidth: "35vw" }}>
+        <Heading
+          color="#d6d6d6"
+          fontSize="4em"
+          style={{ whiteSpace: "nowrap" }}
+          letterSpacing="16px"
+        >
           {Title}
         </Heading>
-        <hr style={{ color: "white", width: "40%" }} />
-        <Card color="white" fontSize=".8em">
-          <Text px="8em" pb="3em">
-            {Plot}
-          </Text>
-          <Text textAlign="center" fontSize=".4em">
-            {Year}
-            {Awards}
-          </Text>
+        <Text textAlign="center" color="white" fontSize=".4em">
+          {Year}
+          <hr style={{ color: "white", width: "40%" }} />
+          {Awards}
+        </Text>
+        <Card pt="1em" color="white" fontSize=".8em">
+          <Text textAlign="left">{Plot}</Text>
         </Card>
+        <Button
+          onClick={() => togglePlayer(playerOptions)}
+          bg="white"
+          color="black"
+        >
+          Watch
+        </Button>
       </Box>
       <Card
         width={["50vw"]}
@@ -138,27 +160,18 @@ const MainPreview = ({ img, Year, Plot, Poster, Awards, Title }) => {
           position: "absolute"
         }}
       >
-        {transitions.map(
-          ({ item, key, props }) =>
-            item && (
-              <>
-                <ImageContainer
-                  key={key}
-                  borderRadius={"6px"}
-                  m="3em"
-                  style={props}
-                  src={Poster}
-                />
-                {console.log("dsfsd", item)}
-              </>
-            )
-        )}
+        <ImageContainer
+          className="animated fadeIn"
+          borderRadius={"6px"}
+          m="3em"
+          src={Poster}
+        />
       </Card>
     </Flex>
   );
 };
 
-const Slider = ({ handleClick, category }) => {
+const Slider = ({ handleClick, category, Slide }) => {
   const {
     loading,
     error,
@@ -188,7 +201,7 @@ const Slider = ({ handleClick, category }) => {
             {category}
           </Heading>
           {data.map((e, i) => (
-            <MoviePreview key={i} data={e} handleClick={handleClick} />
+            <Slide handleClick={handleClick} {...e} />
           ))}
         </Flex>
       )}
@@ -201,24 +214,29 @@ export default function Movies() {
   const [player, togglePlayer] = useState(false);
   const [inspect, toggleInspect] = useState(false);
   const [isTop, checkPosition] = useState(false);
-  const scrollRef = useRef(null);
+  const boxRef = useRef(null);
   const categories = genres;
+
+  const [set, props] = useSpring(() => ({ opacity: 1 }));
 
   useEffect(() => {
     console.log(window);
-    window.addEventListener("scroll", pos => {
-      console.log(pos);
+    const scrollBox = document.querySelector(".App");
+    scrollBox.addEventListener("scroll", pos => {
+      console.log(boxRef.current.offsetTop);
     });
     return () => {};
   }, [isTop]);
 
   return (
-    <Box ref={scrollRef}>
-      <MainPreview welcome={isTop} {...inspect} />
+    <Box ref={boxRef}>
+      <MainPreview togglePlayer={togglePlayer} welcome={isTop} {...inspect} />
       <Box pt="60vh">
         {categories.map((category, i) => {
           return (
             <Slider
+              Slide={MoviePreview}
+              containerRef={boxRef}
               handleClick={toggleInspect}
               key={categories + i}
               togglePlayer={togglePlayer}
@@ -239,7 +257,7 @@ export default function Movies() {
         {" "}
         Contribute
       </Button>
-      {player && <VideoPlayer />}
+      {player && <VideoPlayer {...player} />}
       {upload && <Upload toggle={toggleUpload} />}
     </Box>
   );

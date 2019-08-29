@@ -61,7 +61,7 @@ export const Upload = ({ toggle }) => {
   );
 };
 
-export const VideoPlayer = () => {
+export const VideoPlayer = ({ fullScreen }) => {
   const Video = styled.video`
     position: absolute;
     top: 0;
