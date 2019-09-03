@@ -1,0 +1,14 @@
+type Query {
+  getFiles(input: String): [File]
+}
+type Mutation {
+  uploadFiles(file: Upload!): [File]
+}
+
+type File {
+  name: String
+  path: String
+  extension: String
+  isFolder: Boolean
+  fileName: String
+}

@@ -110,7 +110,8 @@ const MainPreview = ({
   });
 
   const playerOptions = {
-    fullScreen: true
+    fullScreen: true,
+    exit: () => togglePlayer(false)
   };
 
   return (
@@ -125,48 +126,60 @@ const MainPreview = ({
         background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
-      <Box p="3em" style={{ maxWidth: "35vw" }}>
-        <Heading
-          color="#d6d6d6"
-          fontSize="4em"
-          style={{ whiteSpace: "nowrap" }}
-          letterSpacing="16px"
-        >
-          {Title}
-        </Heading>
-        <Text textAlign="center" color="white" fontSize=".4em">
-          {Year}
-          <hr style={{ color: "white", width: "40%" }} />
-          {Awards}
-        </Text>
-        <Card pt="1em" color="white" fontSize=".8em">
-          <Text textAlign="left">{Plot}</Text>
-        </Card>
-        <Button
-          onClick={() => togglePlayer(playerOptions)}
-          bg="white"
-          color="black"
-        >
-          Watch
-        </Button>
-      </Box>
-      <Card
-        width={["50vw"]}
-        style={{
-          right: 0,
-          top: 0,
-          zIndex: -1,
-          height: "100%",
-          position: "absolute"
-        }}
-      >
-        <ImageContainer
-          className="animated fadeIn"
-          borderRadius={"6px"}
-          m="3em"
-          src={Poster}
-        />
-      </Card>
+      {Title ? (
+        <>
+          {" "}
+          <Box p="3em" style={{ maxWidth: "35vw" }}>
+            <Heading
+              color="#d6d6d6"
+              fontSize="4em"
+              style={{ whiteSpace: "nowrap" }}
+              letterSpacing="16px"
+            >
+              {Title}
+            </Heading>
+            <Text textAlign="center" color="white" fontSize=".4em">
+              {Year}
+              <hr style={{ color: "white", width: "40%" }} />
+              {Awards}
+            </Text>
+            <Card pt="1em" color="white" fontSize=".8em">
+              <Text textAlign="left">{Plot}</Text>
+            </Card>
+            <Button
+              m=".5em"
+              onClick={() => togglePlayer(playerOptions)}
+              bg="white"
+              color="black"
+            >
+              Watch
+            </Button>
+          </Box>
+          <Card
+            width={["50vw"]}
+            style={{
+              right: 0,
+              top: 0,
+              zIndex: -1,
+              height: "100%",
+              position: "absolute"
+            }}
+          >
+            <ImageContainer
+              className="animated fadeIn"
+              borderRadius={"6px"}
+              m="3em"
+              src={Poster}
+            />
+          </Card>
+        </>
+      ) : (
+        <Flex width={[1]} justifyContent="center" alignItems="center">
+          <Heading color="white" fontSize="7em">
+            BroFlix
+          </Heading>
+        </Flex>
+      )}
     </Flex>
   );
 };

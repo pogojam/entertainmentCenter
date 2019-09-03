@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Flex, Button, Box } from "rebass";
+import { TiArrowLeftThick } from "react-icons/ti";
 import io from "socket.io-client";
 
 const socket = io("http://localhost:5000");
@@ -30,7 +31,7 @@ export const Upload = ({ toggle }) => {
   console.log(fileData);
   return (
     <Flex
-      style={{ height: "100vh", position: "absolute", top: "0" }}
+      style={{ height: "100vh", position: "absolute", top: "0", zIndex: 999 }}
       bg="#a9a9a98a"
       width="100%"
       alignItems="center"
@@ -61,18 +62,43 @@ export const Upload = ({ toggle }) => {
   );
 };
 
-export const VideoPlayer = ({ fullScreen }) => {
+export const VideoPlayer = ({ fullScreen, exit }) => {
+  const handleMove = () => {};
+
+  const fullsceenStyle = css`
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  `;
+
   const Video = styled.video`
+    background-color: black;
     position: absolute;
     top: 0;
     left: 0;
     max-height: 100vh;
     max-width: 100vw;
+
+    ${fullScreen && fullsceenStyle}
   `;
 
   return (
-    <Video controls>
-      <source src="http://localhost:5000/video" type="video/mp4" />;
-    </Video>
+    <Box onMouseMove={handleMove}>
+      <TiArrowLeftThick
+        color="white"
+        size="45"
+        style={{
+          zIndex: 3,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          padding: "3em"
+        }}
+        onClick={exit}
+      />
+      <Video controls>
+        <source src="http://localhost:5000/video" type="video/mp4" />;
+      </Video>
+    </Box>
   );
 };
