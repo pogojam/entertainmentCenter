@@ -7,11 +7,15 @@ import gql from "graphql-tag";
 import {
   useSpring,
   useTransition,
+  config,
   useTrail,
   animated,
   interpolate
 } from "react-spring";
 import styled from "styled-components";
+
+const AnimationBox = animated(Box);
+const AnimationCard = animated(Card);
 
 const queryMovies = gql`
   query getMovies($input: String) {
@@ -26,10 +30,6 @@ const queryMovies = gql`
     }
   }
 `;
-
-const useAnimation = item => {
-  const [items, addItem] = useState([]);
-};
 
 const MoviePreview = memo(({ handleClick, ...data }) => {
   const propsBackground = useSpring({ size: 1, from: { size: 3 } });
@@ -100,7 +100,7 @@ const MainPreview = ({
     }
   `);
 
-  console.log(Poster);
+  console.log(Title);
 
   useEffect(() => {
     const scrollBox = document.querySelector(".App");
@@ -114,6 +114,19 @@ const MainPreview = ({
     exit: () => togglePlayer(false)
   };
 
+  const transition = {
+    config: (item, type) => {
+      if (type === "leave") return config.molasses;
+      if (type === "enter") return config.molasses;
+    },
+    from: { opacity: 0, transform: "translateY(-30%)" },
+    enter: { opacity: 1, transform: "translateX(0%)" },
+    leave: { opacity: 0, transform: "translateX(-50%)" }
+  };
+  const animation = useTransition(Title, null, transition);
+
+  console.log(animation);
+
   return (
     <Flex
       ref={containerRef}
@@ -126,59 +139,65 @@ const MainPreview = ({
         background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
-      {Title ? (
-        <>
-          {" "}
-          <Box p="3em" style={{ maxWidth: "35vw" }}>
-            <Heading
-              color="#d6d6d6"
-              fontSize="4em"
-              style={{ whiteSpace: "nowrap" }}
-              letterSpacing="16px"
+      {animation.map(({ item, props }) =>
+        item ? (
+          <>
+            {" "}
+            <AnimationBox
+              p="3em"
+              style={{
+                left: 0,
+                position: "absolute",
+                maxWidth: "35vw",
+                ...props
+              }}
             >
-              {Title}
+              <Heading
+                color="#d6d6d6"
+                fontSize="4em"
+                style={{ whiteSpace: "nowrap" }}
+                letterSpacing="16px"
+              >
+                {Title}
+              </Heading>
+              <Text textAlign="center" color="white" fontSize=".4em">
+                {Year}
+                <hr style={{ color: "white", width: "40%" }} />
+                {Awards}
+              </Text>
+              <Card pt="1em" color="white" fontSize=".8em">
+                <Text textAlign="left">{Plot}</Text>
+              </Card>
+              <Button
+                m=".5em"
+                onClick={() => togglePlayer(playerOptions)}
+                bg="white"
+                color="black"
+              >
+                Watch
+              </Button>
+            </AnimationBox>
+            <AnimationCard
+              width={["50vw"]}
+              style={{
+                right: 0,
+                top: 0,
+                zIndex: -1,
+                height: "100%",
+                position: "absolute",
+                ...props
+              }}
+            >
+              <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
+            </AnimationCard>
+          </>
+        ) : (
+          <Flex width={[1]} justifyContent="center" alignItems="center">
+            <Heading color="white" fontSize="7em">
+              BroFlix
             </Heading>
-            <Text textAlign="center" color="white" fontSize=".4em">
-              {Year}
-              <hr style={{ color: "white", width: "40%" }} />
-              {Awards}
-            </Text>
-            <Card pt="1em" color="white" fontSize=".8em">
-              <Text textAlign="left">{Plot}</Text>
-            </Card>
-            <Button
-              m=".5em"
-              onClick={() => togglePlayer(playerOptions)}
-              bg="white"
-              color="black"
-            >
-              Watch
-            </Button>
-          </Box>
-          <Card
-            width={["50vw"]}
-            style={{
-              right: 0,
-              top: 0,
-              zIndex: -1,
-              height: "100%",
-              position: "absolute"
-            }}
-          >
-            <ImageContainer
-              className="animated fadeIn"
-              borderRadius={"6px"}
-              m="3em"
-              src={Poster}
-            />
-          </Card>
-        </>
-      ) : (
-        <Flex width={[1]} justifyContent="center" alignItems="center">
-          <Heading color="white" fontSize="7em">
-            BroFlix
-          </Heading>
-        </Flex>
+          </Flex>
+        )
       )}
     </Flex>
   );
