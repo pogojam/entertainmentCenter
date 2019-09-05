@@ -1,14 +1,15 @@
-import ApolloClient from "apollo-boost";
+import { ApolloClient } from "apollo-client";
 import React from "react";
 import AppRouter from "./routes/router";
 import "animate.css";
-import theme from "./theme.js";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { createUploadLink } from "apollo-upload-client";
 import { ApolloProvider } from "@apollo/react-hooks";
-
 import "./App.css";
 
 const client = new ApolloClient({
-  uri: "http://localhost:5000/graphql"
+  link: createUploadLink({ uri: "http://localhost:5000/graphql" }),
+  cache: new InMemoryCache()
 });
 
 function App() {

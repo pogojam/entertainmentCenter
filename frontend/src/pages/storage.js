@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Flex, Card, Text } from "rebass";
-import { MdFolder } from "react-icons/md";
-import { useQuery } from "@apollo/react-hooks";
+import { MdFolder, MdChevronRight } from "react-icons/md";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
+import { useSpring, animated } from "react-spring";
+import { uploadFile } from "../components/upload";
 
 const QUERY = gql`
   query getFiles($input: String) {
@@ -10,15 +12,20 @@ const QUERY = gql`
       isFolder
       name
       fileName
+      dir
       path
       extension
     }
   }
 `;
 
-const handleFolderClick = (set, data) => {
-  set(data);
-};
+const MUTATION = gql`
+  mutation uploadFiles($file: Upload!, $meta: FileInput!) {
+    uploadFiles(file: $file, meta: $meta) {
+      name
+    }
+  }
+`;
 
 const Container = ({ children, index, ...props }) => (
   <Flex
@@ -32,30 +39,70 @@ const Container = ({ children, index, ...props }) => (
 );
 
 const FileCard = ({ fileName, ...props }) => (
-  <Container {...props}>{fileName}</Container>
+  <Container {...props}>
+    <MdChevronRight style={{ opacity: 0 }} />
+    {fileName}
+  </Container>
 );
 
-const DirectoryCard = ({ name, path, ...props }) => {
-  const { sub, set } = useState(null);
+const DirectoryCard = ({ name, fileName, dir, path, ...props }) => {
+  const [sub, set] = useState(null);
+  const [isEnter, setEnter] = useState(null);
   const { loading, data, error } = useQuery(QUERY, {
-    variables: path
+    variables: { input: path + fileName + "/" }
   });
 
+  const handleFolderClick = () => {
+    if (!sub) return set(data.getFiles);
+    set(null);
+  };
+
+  const rotateArrow = useSpring(
+    sub ? { transform: "rotate(90deg)" } : { transform: "rotate(0deg)" }
+  );
+  const animDrag = useSpring(
+    isEnter ? { backgroundColor: "blue" } : { backgroundColor: "black" }
+  );
+
+  const dragEvents = {
+    onDragOver: e => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (!sub) set(data.getFiles);
+    },
+    onDragLeave: e => {},
+    onDrop: e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      console.log(path, fileName);
+      [...files].forEach(file => uploadFile(file, path + fileName + "/"));
+    }
+  };
+
   return (
-    <Container {...props} onClick={() => handleFolderClick(set, data)}>
-      <MdFolder />
-      <Text textAlign="left" width="100%">
-        {name}
-      </Text>
-      {sub &&
-        sub.map(({ isFolder, ...props }, i) =>
-          isFolder ? (
-            <DirectoryCard index={i} {...props} />
-          ) : (
-            <FileCard index={i} {...props} />
-          )
-        )}
-    </Container>
+    <>
+      <animated.div {...dragEvents} style={animDrag}>
+        <Container {...props} onClick={handleFolderClick}>
+          <animated.div style={{ ...rotateArrow, display: "flex" }}>
+            <MdChevronRight />
+          </animated.div>
+          <MdFolder />
+          <Text textAlign="left" width="100%">
+            {fileName}
+          </Text>
+        </Container>
+        {sub &&
+          sub.map(({ isFolder, ...props }, i) =>
+            isFolder ? (
+              <DirectoryCard key={i} index={i} {...data} />
+            ) : (
+              <FileCard key={i} index={i} {...props} />
+            )
+          )}
+      </animated.div>
+    </>
   );
 };
 

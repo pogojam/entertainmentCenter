@@ -13,8 +13,8 @@ module.exports = {
 
         return {
           path: dir,
-          name: split[0],
           fileName: file,
+          dir: dir,
           extension: split[1],
           isFolder
         };
@@ -22,9 +22,21 @@ module.exports = {
     }
   },
   Mutation: {
-    uploadFiles: async (obj, data, { database }) => {
-      console.log(data);
-      // fs.createWriteStream(basePath)
+    uploadFiles: async (obj, { file, meta: { path } }, { database }) => {
+      const { filename, createReadStream, ...rest } = await file;
+      const basePath = baseName + path + "/";
+      //   const wrightStream = fs.createWriteStream(basePath + filename);
+      const readStream = createReadStream();
+      //   console.log(readStream);
+      readStream.on("data", () => {
+        console.log("DATA");
+      });
+
+      //   readStream.pipe(wrightStream);
+
+      //   if (!fs.existsSync(basePath)) {
+      //     fs.mkdirSync(basePath);
+      //   }
     }
   }
 };

@@ -11,7 +11,6 @@ const uploadEvent = data => {
     const fReader = new FileReader();
 
     fReader.onload = event => {
-      console.log(event.target.result);
       socket.emit("Upload", { name: file.name, data: event.target.result });
     };
     console.log(file);
@@ -24,10 +23,39 @@ const uploadEvent = data => {
   }
 };
 
+export const uploadFile = async (file, path) => {
+  const sliceSize = 1000;
+  const fileReader = new FileReader();
+  const slices = file.slice(0, sliceSize);
+  let currentSlice = 0;
+
+  fileReader.onload = res => {
+    socket.emit("fileUpload", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      data: fileReader.result,
+      path,
+      currentSlice
+    });
+  };
+
+  socket.on("requestSlice", data => {
+    const place = data.currentSlice * sliceSize;
+    const newSliceData = file.slice(
+      place,
+      place + Math.min(place, file.size - place)
+    );
+    currentSlice++;
+    fileReader.readAsArrayBuffer(newSliceData);
+  });
+
+  await fileReader.readAsArrayBuffer(slices);
+};
+
 export const Upload = ({ toggle }) => {
   const [fileData, setFile] = useState(null);
 
-  useEffect(() => {}, []);
   console.log(fileData);
   return (
     <Flex
