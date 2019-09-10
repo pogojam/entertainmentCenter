@@ -22,21 +22,11 @@ module.exports = {
     }
   },
   Mutation: {
-    uploadFiles: async (obj, { file, meta: { path } }, { database }) => {
-      const { filename, createReadStream, ...rest } = await file;
-      const basePath = baseName + path + "/";
-      //   const wrightStream = fs.createWriteStream(basePath + filename);
-      const readStream = createReadStream();
-      //   console.log(readStream);
-      readStream.on("data", () => {
-        console.log("DATA");
-      });
-
-      //   readStream.pipe(wrightStream);
-
-      //   if (!fs.existsSync(basePath)) {
-      //     fs.mkdirSync(basePath);
-      //   }
+    addFolder: (obj, { path, name }) => {
+      console.log("will add folder", name, path);
+      // fs.mkdir(path, { recursive: true },(err)=>{
+      //   if(err) throw err
+      // })
     }
   }
 };

@@ -2,7 +2,7 @@ type Query {
   getFiles(input: String): [File]
 }
 type Mutation {
-  uploadFiles(file: Upload!, meta: FileInput): [File]
+  addFolder(path: String, name: String): Folder
 }
 
 input FileInput {
@@ -14,6 +14,10 @@ input FileInput {
   dir: String
 }
 
+type Folder {
+  name: String
+  path: String
+}
 type File {
   name: String
   path: String
