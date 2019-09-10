@@ -100,15 +100,6 @@ const MainPreview = ({
     }
   `);
 
-  console.log(Title);
-
-  useEffect(() => {
-    const scrollBox = document.querySelector(".App");
-    containerRef.current.addEventListener("mousewheel", e => {
-      scrollBox.scrollTop += e.deltaY;
-    });
-  });
-
   const playerOptions = {
     fullScreen: true,
     exit: () => togglePlayer(false)

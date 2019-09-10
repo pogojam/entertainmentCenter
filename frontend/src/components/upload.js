@@ -3,6 +3,8 @@ import styled, { css } from "styled-components";
 import { Flex, Button, Box } from "rebass";
 import { TiArrowLeftThick } from "react-icons/ti";
 import io from "socket.io-client";
+import ss from "socket.io-stream";
+import fileReaderStream from "filereader-stream";
 
 const socket = io("http://localhost:5000");
 
@@ -13,7 +15,6 @@ const uploadEvent = data => {
     fReader.onload = event => {
       socket.emit("Upload", { name: file.name, data: event.target.result });
     };
-    console.log(file);
     fReader.readAsArrayBuffer(file);
     socket.emit("Start", { name: file.name, Size: file.size });
   };
@@ -23,34 +24,19 @@ const uploadEvent = data => {
   }
 };
 
-export const uploadFile = async (file, path) => {
-  const sliceSize = 1000;
-  const fileReader = new FileReader();
-  const slices = file.slice(0, sliceSize);
-  let currentSlice = 0;
-
-  fileReader.onload = res => {
-    socket.emit("fileUpload", {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      data: fileReader.result,
-      path,
-      currentSlice
-    });
+export const uploadFile = async (file, dir, refetch) => {
+  const Stream = ss.createStream();
+  const fileInfo = {
+    name: file.name,
+    dir: dir,
+    size: file.size
   };
 
-  socket.on("requestSlice", data => {
-    const place = data.currentSlice * sliceSize;
-    const newSliceData = file.slice(
-      place,
-      place + Math.min(place, file.size - place)
-    );
-    currentSlice++;
-    fileReader.readAsArrayBuffer(newSliceData);
+  socket.on("uploadEnd", e => {
+    refetch();
   });
-
-  await fileReader.readAsArrayBuffer(slices);
+  ss(socket).emit("fileUpload", Stream, fileInfo);
+  fileReaderStream(file).pipe(Stream);
 };
 
 export const Upload = ({ toggle }) => {

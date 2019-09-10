@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Flex, Card, Text } from "rebass";
-import { MdFolder, MdChevronRight } from "react-icons/md";
+import { MdFolder, MdControlPoint, MdChevronRight } from "react-icons/md";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
 import { useSpring, animated } from "react-spring";
@@ -19,9 +19,10 @@ const QUERY = gql`
   }
 `;
 
-const MUTATION = gql`
-  mutation uploadFiles($file: Upload!, $meta: FileInput!) {
-    uploadFiles(file: $file, meta: $meta) {
+const ADD_FOLDER = gql`
+  mutation addFolder($path: String, $name: String) {
+    addFolder(path: $path, name: $name) {
+      path
       name
     }
   }
@@ -45,16 +46,22 @@ const FileCard = ({ fileName, ...props }) => (
   </Container>
 );
 
-const DirectoryCard = ({ name, fileName, dir, path, ...props }) => {
+const DirectoryCard = ({ name, fileName, dir, path, subRefetch, ...props }) => {
   const [sub, set] = useState(null);
   const [isEnter, setEnter] = useState(null);
-  const { loading, data, error } = useQuery(QUERY, {
+  const { data, refetch } = useQuery(QUERY, {
     variables: { input: path + fileName + "/" }
   });
 
   const handleFolderClick = () => {
     if (!sub) return set(data.getFiles);
     set(null);
+  };
+
+  const handleRefetch = fetch => {
+    fetch();
+    set(data.getFiles);
+    console.log(data);
   };
 
   const rotateArrow = useSpring(
@@ -76,8 +83,11 @@ const DirectoryCard = ({ name, fileName, dir, path, ...props }) => {
       e.stopPropagation();
       const dt = e.dataTransfer;
       const files = dt.files;
-      console.log(path, fileName);
-      [...files].forEach(file => uploadFile(file, path + fileName + "/"));
+      [...files].forEach(file =>
+        uploadFile(file, path + fileName + "/", () =>
+          handleRefetch(subRefetch ? subRefetch : refetch)
+        )
+      );
     }
   };
 
@@ -96,7 +106,12 @@ const DirectoryCard = ({ name, fileName, dir, path, ...props }) => {
         {sub &&
           sub.map(({ isFolder, ...props }, i) =>
             isFolder ? (
-              <DirectoryCard key={i} index={i} {...data} />
+              <DirectoryCard
+                subRefetch={refetch}
+                key={i}
+                index={i}
+                {...props}
+              />
             ) : (
               <FileCard key={i} index={i} {...props} />
             )
@@ -106,8 +121,43 @@ const DirectoryCard = ({ name, fileName, dir, path, ...props }) => {
   );
 };
 
+const Menue = ({ setMode }) => {
+  const handleAddFolder = path => {
+    setMode("addFolder");
+  };
+
+  return (
+    <Flex bg="#909090" flexDirection="column" p={["1em"]}>
+      <Card
+        style={{ alignSelf: "flex-end", display: "flex", alignItems: "center" }}
+        onClick={handleAddFolder}
+      >
+        <MdControlPoint />
+        Folder
+      </Card>
+    </Flex>
+  );
+};
+
+const AddFolder = () => {
+  const [addFolder] = useMutation(ADD_FOLDER);
+  const inputRef = useRef(null);
+  return (
+    <Flex p="1em" bg="white ">
+      <MdFolder />
+      <input ref={inputRef} type="text" />{" "}
+      <MdControlPoint
+        onClick={() =>
+          addFolder({ variables: { path: "/", name: inputRef.current.value } })
+        }
+      />{" "}
+    </Flex>
+  );
+};
+
 export default function Storage() {
-  const { loading, data, error } = useQuery(QUERY, {
+  const [mode, setMode] = useState(null);
+  const { loading, data, error, refetch } = useQuery(QUERY, {
     variables: { input: "/" }
   });
 
@@ -125,6 +175,7 @@ export default function Storage() {
         width="100%"
         bg="#131331"
       >
+        <Menue setMode={setMode} />
         {loading
           ? "...loading"
           : data.getFiles.map(({ isFolder, ...props }, i) =>
@@ -134,6 +185,7 @@ export default function Storage() {
                 <FileCard index={i} {...props} />
               )
             )}
+        {mode === "addFolder" && <AddFolder />}
       </Card>
     </Flex>
   );
