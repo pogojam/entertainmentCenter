@@ -1,0 +1,17 @@
+scalar Date
+
+type Mutation {
+  newUser(input: userForm): User
+}
+
+input userForm {
+  firstName: String
+  lastname: String
+  email: String
+}
+
+type User {
+  firstName: String
+  lastname: String
+  email: String
+}
