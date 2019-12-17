@@ -1,13 +1,17 @@
 const express = require("express");
 const fs = require("fs");
+const p = require("path");
 const videoRoutes = express.Router();
 const ss = require("socket.io-stream");
 const axio = require("axios");
 
 const omdbPath = `http://www.omdbapi.com/?apikey=${process.env.OMBD}&`;
 
+// Stream Video
+
 videoRoutes.get("/", function(req, res) {
-  const path = "./temp/Dancing - 15706.mp4";
+  console.log(req.body, res);
+  const path = p.basename("../output.mkv");
   const stat = fs.statSync(path);
   const fileSize = stat.size;
   const range = req.headers.range;
@@ -31,11 +35,13 @@ videoRoutes.get("/", function(req, res) {
       "Content-Type": "video/mp4"
     };
     res.writeHead(200, head);
-    fs.createReadStream(path).pipe(res);
+    const videoStream = fs.createReadStream(path);
+    console.log(videoStream);
+    videoStream.pipe(res);
   }
 });
 
-const videoSockets = (socket, database) => {
+const videoSockets = (socket, stream, database) => {
   socket.on("Upload", ({ name, data }) => {
     fs.writeFile("./temp/" + name, data, async err => {
       if (err) throw err;
@@ -59,6 +65,11 @@ const videoSockets = (socket, database) => {
 
       console.log("upload complete");
     });
+  });
+
+  stream.on("streamVideo", (stream, { path }) => {
+    console.log(stream, "data", data, path);
+    stream.pipe(fs.createReadStream(path));
   });
 };
 

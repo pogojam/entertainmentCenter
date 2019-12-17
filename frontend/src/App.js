@@ -5,6 +5,7 @@ import "animate.css";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { createUploadLink } from "apollo-upload-client";
 import { ApolloProvider } from "@apollo/react-hooks";
+import "./filebase/config";
 import "./App.css";
 
 const client = new ApolloClient({

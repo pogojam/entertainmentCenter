@@ -1,46 +1,45 @@
 import React, { useEffect, useState } from "react";
-import Player from "../components/player/spotify";
+// import Player from "../components/player/spotify";
 import io from "socket.io-client";
 import ss from "socket.io-stream";
+import { Box, Heading } from "rebass";
 
 const socket = io("http://localhost:5000");
 const stream = ss.createStream();
 
+stream.on("data", stream => {
+  console.log(stream);
+});
+
+const handleStream = cb => {
+  console.log("object");
+  ss(socket).on("streamVideo", (stream, data) => {
+    cb(stream);
+  });
+};
+
 export default function Music() {
-  const [player, togglePlayer] = useState(false);
-  const [src, setSrc] = useState(false);
-  // const audioContext = new AudioContext();
-  const parts = [];
+  const [videoStream, setStream] = useState();
+  console.log(videoStream);
 
-  const handleClick = e => {
-    ss(socket).emit("Play", stream);
-
-    stream.on("data", data => {
-      console.log(data);
-      parts.push(data);
-    });
-    stream.on("end", () => {
-      setSrc(
-        window.URL.createObjectURL(new Blob([new Uint8Array(parts).buffer]))
-      );
-      togglePlayer(true);
-    });
-
-    // const audioStream = new MediaStream();
-    // console.log(audioStream);
-    // const audio = audioContext.createMediaStreamSource(stream);
-    // audio.connect(audioContext.destination);
-    // audio.start();
-  };
   return (
-    <div>
-      {player && (
-        <audio controls autoPlay>
-          <source src={src} type="audio/mp3" />
-        </audio>
-      )}
-      <button onClick={handleClick}>Sync Song</button>
-      <Player />
-    </div>
+    <Box>
+      <Heading>Screen capture</Heading>
+      <button
+        onClick={() =>
+          handleStream(st => {
+            console.log(st);
+          })
+        }
+      >
+        Start stream
+      </button>
+      <Box
+        as="video"
+        style={{ height: "100%" }}
+        width={[1]}
+        src={videoStream}
+      />
+    </Box>
   );
 }

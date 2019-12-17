@@ -5,6 +5,10 @@
       "name": "Home"
     },
     {
+      "path": "Login",
+      "name": "Login"
+    },
+    {
       "path": "Movies",
       "name": "Movies"
     },
