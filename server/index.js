@@ -2,6 +2,7 @@ const app = require("express")();
 const apolloServer = require("./services/apollo");
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
+const ss = require("socket.io-stream");
 const { searchRouter } = require("./routes/search");
 const { videoRoutes, videoSockets } = require("./routes/video");
 const { musicRoutes, musicSockets } = require("./routes/music");
@@ -20,9 +21,10 @@ app.use("/search", searchRouter);
 apolloServer.applyMiddleware({ app });
 
 io.on("connect", socket => {
+  const stream = ss(socket);
   connections.push(socket.id);
-  videoSockets(socket, database);
-  musicSockets(socket, database);
+  videoSockets(socket, stream, database);
+  musicSockets(socket, stream, database);
   storageSockets(socket);
   console.log("Connected sockets " + connections.length);
 });

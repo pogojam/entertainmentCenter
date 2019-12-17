@@ -3,6 +3,7 @@ import { Upload, VideoPlayer } from "../components/upload";
 import { Box, Image, Flex, Button, Card, Heading, Text } from "rebass";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import genres from "../library/genres.json";
+import { useObserver } from "../util";
 import gql from "graphql-tag";
 import {
   useSpring,
@@ -44,11 +45,14 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
     config: { mass: 5, tension: 350, friction: 40 }
   }));
 
-  const calc = (x, y) => [
-    -(y - containerRef.current.clientHeight / 2) / 20,
-    (x - containerRef.current.clientWidth / 2) / 20,
-    1.1
-  ];
+  const calc = (x, y) => {
+    const con = containerRef.current.getBoundingClientRect();
+    return [
+      -(y - con.top - con.height / 2) / 20,
+      (x - con.left - con.width / 2) / 20,
+      1.1
+    ];
+  };
 
   return (
     <Container
@@ -61,18 +65,26 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
       onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
       onMouseLeave={() => set({ xys: [0, 0, 1] })}
       className="animated fadeIn"
-      style={{ transform: props.xys.interpolate(trans) }}
+      mr="1em"
+      style={{
+        background: `url(${data.Poster})`,
+        boxShadow: "-2px 0px 14px 0px rgba(0,0,0,0.75)",
+        transform: props.xys.interpolate(trans),
+        backgroundSize: "cover",
+        height: "100%",
+        width: "15em",
+        borderRadius: "15px"
+      }}
     >
-      <Image
+      {/* <Image
         src={data.Poster}
         borderRadius="3px"
         style={{
           height: "100%",
           zIndex: "-1",
-          transform: `scale(${propsBackground.size})`,
-          boxShadow: "-2px 0px 14px 0px rgba(0,0,0,0.75)"
+          transform: `scale(${propsBackground.size})`
         }}
-      />
+      /> */}
     </Container>
   );
 });
@@ -110,24 +122,24 @@ const MainPreview = ({
       if (type === "leave") return config.molasses;
       if (type === "enter") return config.molasses;
     },
-    from: { opacity: 0, transform: "translateY(-30%)" },
-    enter: { opacity: 1, transform: "translateX(0%)" },
-    leave: { opacity: 0, transform: "translateX(-50%)" }
+    from: { opacity: 0, transform: "translateX(-30%) translateY(0%)" },
+    enter: { opacity: 1, transform: "translateX(0%) translateY(0%) " },
+    leave: { opacity: 0, transform: "translateX(30%) translateY(0%)" }
   };
   const animation = useTransition(Title, null, transition);
-
-  console.log(animation);
 
   return (
     <Flex
       ref={containerRef}
+      className="MainPreview"
       style={{
-        height: "60vh",
-        width: "100%",
         zIndex: 2,
-        position: "absolute",
+        width: "70%",
+        height: "100%",
         top: 0,
-        background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
+        right: 0,
+        position: "fixed"
+        // background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
       {animation.map(({ item, props }) =>
@@ -137,12 +149,33 @@ const MainPreview = ({
             <AnimationBox
               p="3em"
               style={{
-                left: 0,
+                right: 0,
                 position: "absolute",
-                maxWidth: "35vw",
+                maxWidth: "45vw",
+                height: "100%",
+                flexDirection: "column",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+                zIndex: 0,
                 ...props
               }}
             >
+              <AnimationCard
+                width={["50vw"]}
+                style={{
+                  left: 0,
+                  top: 0,
+
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  ...props
+                }}
+              >
+                <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
+              </AnimationCard>
+
               <Heading
                 color="#d6d6d6"
                 fontSize="4em"
@@ -164,30 +197,23 @@ const MainPreview = ({
                 onClick={() => togglePlayer(playerOptions)}
                 bg="white"
                 color="black"
+                maxWidth="8em"
+                alignSelf="center"
               >
                 Watch
               </Button>
             </AnimationBox>
-            <AnimationCard
-              width={["50vw"]}
-              style={{
-                right: 0,
-                top: 0,
-                zIndex: -1,
-                height: "100%",
-                position: "absolute",
-                ...props
-              }}
-            >
-              <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
-            </AnimationCard>
           </>
         ) : (
-          <Flex width={[1]} justifyContent="center" alignItems="center">
-            <Heading color="white" fontSize="7em">
-              BroFlix
-            </Heading>
-          </Flex>
+          <animated.div
+            style={{ ...props, margin: "auto", alignSelf: "center" }}
+          >
+            <Flex width={[1]} justifyContent="center" alignItems="center">
+              <Heading color="white" fontSize="7em">
+                BroFlix
+              </Heading>
+            </Flex>
+          </animated.div>
         )
       )}
     </Flex>
@@ -202,31 +228,98 @@ const Slider = ({ handleClick, category, Slide }) => {
   } = useQuery(queryMovies, {
     variables: { input: category }
   });
+
+  const wasAbove = useRef(false);
+
+  const [ref, entry] = useObserver({
+    threshold: [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.85,
+      0.9,
+      0.95,
+      0.98,
+      1.0
+    ]
+  });
+
+  const [scrollAnim, setAnim] = useSpring(() => ({
+    opc: [1],
+    sp: [0, 0]
+  }));
+
+  const calcSpin = (entry, deg) => {
+    if (entry.isIntersecting) {
+      const isAbove = entry.boundingClientRect.y < entry.rootBounds.y;
+      const ir = entry.intersectionRatio;
+      let scale = ir;
+      let roation = 0;
+      if (wasAbove.current) {
+        // Comes from top
+
+        console.log(entry);
+        roation = deg - deg * ir;
+      } else {
+        roation = deg - deg * ir;
+      }
+
+      wasAbove.current = isAbove;
+      return [roation, scale];
+    }
+  };
+
+  useEffect(() => {
+    const inr = entry.intersectionRatio;
+    if (inr) {
+      console.log(calcSpin(inr, 15));
+      inr >= 0 && setAnim({ opc: [inr], sp: calcSpin(entry, 90) });
+    }
+  }, [entry, setAnim]);
+
+  console.log(scrollAnim);
+
   return (
     <>
       {!loading && data.length > 0 && (
-        <Flex
-          bg="#fd0101"
-          my="5em"
-          p=".5em"
+        <animated.div
           style={{
-            height: "40vh",
-            position: "relative"
+            opacity: scrollAnim.opc.interpolate(e => e),
+            transformOrigin: "center center",
+            transform: scrollAnim.sp.interpolate(
+              (e, s) => `rotate(${e}deg) scale(${s}) `
+            )
           }}
-          width="100%"
         >
-          <Heading
-            color="white"
-            fontWeight={100}
-            pl="2em"
-            style={{ position: "absolute", left: 0, top: "-2em" }}
+          <Flex
+            ref={ref}
+            my="5em"
+            p="1.5em"
+            style={{
+              height: "17em",
+              position: "relative"
+            }}
+            width="100%"
           >
-            {category}
-          </Heading>
-          {data.map((e, i) => (
-            <Slide handleClick={handleClick} {...e} />
-          ))}
-        </Flex>
+            <Heading
+              color="white"
+              fontWeight={100}
+              pl="2em"
+              style={{ position: "absolute", left: 0, top: "-2em" }}
+            >
+              {category}
+            </Heading>
+            {data.map((e, i) => (
+              <Slide handleClick={handleClick} {...e} />
+            ))}
+          </Flex>
+        </animated.div>
       )}
     </>
   );
@@ -240,21 +333,13 @@ export default function Movies() {
   const boxRef = useRef(null);
   const categories = genres;
 
-  const [set, props] = useSpring(() => ({ opacity: 1 }));
-
-  useEffect(() => {
-    console.log(window);
-    const scrollBox = document.querySelector(".App");
-    scrollBox.addEventListener("scroll", pos => {
-      console.log(boxRef.current.offsetTop);
-    });
-    return () => {};
-  }, [isTop]);
-
   return (
-    <Box ref={boxRef}>
+    <Box
+      ref={boxRef}
+      style={{ display: "flex", height: "100%", flexDirection: "column" }}
+    >
       <MainPreview togglePlayer={togglePlayer} welcome={isTop} {...inspect} />
-      <Box pt="60vh">
+      <Box mt="10vh">
         {categories.map((category, i) => {
           return (
             <Slider
@@ -269,12 +354,14 @@ export default function Movies() {
         })}
       </Box>
       <Button
-        bg="#000000"
-        color="#22ce99"
+        bg="red"
+        color="black"
         onClick={() => toggleUpload(!upload)}
         style={{
           position: "fixed",
-          bottom: "-3px"
+          right: "0",
+          bottom: "-3px",
+          zIndex: 4
         }}
       >
         {" "}

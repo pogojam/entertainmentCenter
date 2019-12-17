@@ -5,10 +5,10 @@ const {
   mergeResolvers,
   fileLoader
 } = require("merge-graphql-schemas");
-const { database } = require("./firebase");
+const { database, auth } = require("./firebase");
 
 const context = ({ req }) => {
-  return { database };
+  return { database, auth };
 };
 
 const typeDefs = mergeTypes(

@@ -1,12 +1,19 @@
-@import url("https://fonts.googleapis.com/css?family=Red+Hat+Display&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Lora|Montserrat&display=swap");
 
 * {
-  font-family: "Red Hat Display", sans-serif;
+  font-family: "Montserrat", sans-serif;
+  /* font-family: "Lora", serif; */
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Oswald", sans-serif;
 }
 .App {
   text-align: center;
   height: 100vh;
-  background-color: #091125;
+  background-color: black;
 }
 
 .App-logo {
