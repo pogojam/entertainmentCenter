@@ -4,6 +4,7 @@ import gql from "graphql-tag";
 import { auth } from "../../filebase/config";
 
 const listeners = [];
+let isValidated = false;
 
 const MUTATION_newUser = gql`
   mutation newUser($input: userInput) {
@@ -24,7 +25,7 @@ const MUTATION_login = gql`
 const loginUser = (e, { pass, email }) => {
   e.preventDefault();
   auth.signInWithEmailAndPassword(email, pass).then(e => {
-    listeners.forEach(lis => lis(true));
+    // listeners.forEach(lis => lis(true));
   });
 };
 
@@ -49,21 +50,25 @@ const logoutUser = () => {
   // listeners.forEach(e => e(false));
 };
 
-auth.onAuthStateChanged(user => {
-  if (user) {
-    listeners.forEach(e => e(true));
-  } else {
-    listeners.forEach(e => e(false));
-  }
-});
-
 export const useAuth = params => {
   const [isLoggedIn, setLogin] = useState(null);
+  const [token, setToken] = useState("123");
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      console.log(user);
+      listeners.forEach(e => e(user.refreshToken));
+      setToken(user.refreshToken);
+      console.log(user);
+    } else {
+      listeners.forEach(e => e(false));
+    }
+  });
 
   useEffect(() => {
     console.log("USER STATUS", auth.currentUser);
     listeners.push(setLogin);
   }, []);
 
-  return [isLoggedIn, creatNewUser, loginUser, logoutUser];
+  return [isLoggedIn, creatNewUser, loginUser, logoutUser, token];
 };

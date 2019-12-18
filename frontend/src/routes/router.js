@@ -1,6 +1,7 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
-import { Home, Movies, Music, Storage, Login } from "../pages";
+import { Dash, Movies, Music, Storage, Login } from "../pages";
 import build from "../pages/build.json";
 import Nav from "../components/nav/mainNav";
 import { useAuth } from "../components/auth/index";
@@ -13,7 +14,8 @@ const Layout = ({ children }) => {
         left: 0,
         width: "100%",
         height: "100%",
-        marginTop: "5em"
+        paddingTop: "5em",
+        maxHeight: "calc(100vh - 5em)"
       }}
     >
       {children}
@@ -23,6 +25,7 @@ const Layout = ({ children }) => {
 
 const AppRouter = params => {
   const [isLoggedIn, ...authRest] = useAuth();
+  // const token = authState.token;
 
   const PrivateRoutes = ({ isLoggedIn, children }) => (
     <Route
@@ -45,9 +48,9 @@ const AppRouter = params => {
         logout={authRest[2]}
       />
       <Layout>
-        <Route path="/" exact component={Home} />
         <Route path="/Login" exact component={Login} />
         <PrivateRoutes isLoggedIn={isLoggedIn}>
+          <Route path="/" exact component={Dash} />
           <Route path="/Movies" exact component={Movies} />
           <Route path="/Music" exact component={Music} />
           <Route path="/Storage" exact component={Storage} />
