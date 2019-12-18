@@ -1,0 +1,19 @@
+scalar Date
+
+type Mutation {
+  newService(input: serviceInput): Service
+}
+
+input serviceInput {
+  token: String
+  name: String
+  cycle: Int
+  startDate: Date
+}
+
+type Service {
+  name: String
+  cycle: Int
+  startDate: Date
+  paidUsers: [User]
+}

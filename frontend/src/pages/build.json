@@ -1,8 +1,8 @@
 {
   "pages": [
     {
-      "path": "Home",
-      "name": "Home"
+      "path": "Dash",
+      "name": "Dash"
     },
     {
       "path": "Login",

@@ -24,8 +24,10 @@ const Login = ({ initalState = true }) => {
   const [lastName, setLast] = useState("");
   const [code, setCode] = useState("");
 
+  console.log(isLoggedIn);
+
   return isLoggedIn ? (
-    <Redirect to="/Movies" />
+    <Redirect to="/" />
   ) : (
     <Flex
       onSubmit={e =>
