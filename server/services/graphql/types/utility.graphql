@@ -4,6 +4,11 @@ type Mutation {
   newService(input: serviceInput): Service
 }
 
+type Query {
+  getServices(token: String): [Service]
+  getBills(token: String, service: String): [Bill]
+}
+
 input serviceInput {
   token: String
   name: String
@@ -15,5 +20,12 @@ type Service {
   name: String
   cycle: Int
   startDate: Date
-  paidUsers: [User]
+}
+
+type Bill {
+  paidUsers: [ID]
+  dueDate: Date
+  pastDue: Boolean
+  billPayed: Boolean
+  service: String
 }

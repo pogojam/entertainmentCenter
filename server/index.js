@@ -1,3 +1,4 @@
+require("./services/jobs");
 const app = require("express")();
 const apolloServer = require("./services/apollo");
 const server = require("http").Server(app);
