@@ -37,6 +37,12 @@ h3 {
   color: #61dafb;
 }
 
+input {
+  background-color: transparent;
+  border: 1px solid black;
+  margin: 0.3em;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
