@@ -16,11 +16,27 @@ const MUTATION_NewService = gql`
   }
 `;
 
-const UtilityCard = ({ token }) => {
+const QUERY_Bills = gql`
+  query getBills($token: String, $service: String) {
+    getBills(token: $token, service: $service) {
+      dueDate
+    }
+  }
+`;
+
+const QUERY_Services = gql`
+  query getServices($token: String) {
+    getServices(token: $token) {
+      name
+    }
+  }
+`;
+
+const AddServiceCard = ({ token }) => {
   const [cycle, setCycle] = useState(null);
   const [startDate, setDate] = useState(null);
   const [name, setName] = useState(null);
-  const [addService, { data }] = useMutation(MUTATION_NewService);
+  const [addService] = useMutation(MUTATION_NewService);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -29,6 +45,13 @@ const UtilityCard = ({ token }) => {
         input: { cycle: parseInt(cycle, 10), startDate, name, token }
       }
     });
+    reset();
+  };
+
+  const reset = () => {
+    setCycle(null);
+    setDate(null);
+    setName(null);
   };
 
   const handleChange = ({ target }, setter) => {
@@ -51,10 +74,47 @@ const UtilityCard = ({ token }) => {
   );
 };
 
+const BillSlider = ({ service, token }) => {
+  const { loading, error, data } = useQuery(QUERY_Bills, {
+    variables: {
+      service,
+      token
+    }
+  });
+
+  return loading
+    ? null
+    : data.getBills.map(({ dueDate }) => (
+        <Box>
+          <Heading>{dueDate}</Heading>
+        </Box>
+      ));
+};
+
+const ServiceSliders = ({ token }) => {
+  const { loading, error, data } = useQuery(QUERY_Services, {
+    variables: {
+      token
+    }
+  });
+
+  return loading
+    ? null
+    : data.getServices.map(({ name }) => (
+        <Flex width="100%">
+          <Heading p="2em" style={{ flexBasis: "30%" }}>
+            {name}
+          </Heading>
+          <Box bg="beige" style={{ flexBasis: "100%" }}>
+            <BillSlider token={token} service={name} />
+          </Box>
+        </Flex>
+      ));
+};
+
 const DASH_Utility = () => {
   const [token] = useAuth();
 
-  console.log(token);
   return (
     <Flex
       flexDirection="column"
@@ -63,8 +123,17 @@ const DASH_Utility = () => {
       width="100%"
       height="100%"
     >
-      <Heading>New Utility Service</Heading>
-      <UtilityCard token={token} />
+      <Flex
+        flexDirection="column"
+        alignItems="center"
+        p="1.5em"
+        width="100%"
+        bg="#969696"
+      >
+        <Heading>New Utility Service</Heading>
+        <AddServiceCard token={token} />
+      </Flex>
+      {token && <ServiceSliders token={token} />}
     </Flex>
   );
 };
@@ -81,9 +150,10 @@ export default function Dash() {
   return (
     <Container height="100%">
       <Nav />
-      <Switch>
-        <Route path="/" component={DASH_Utility} />
-      </Switch>
+      <DASH_Utility />
+      {/* <Switch>
+        <Route path="" component={DASH_Utility} />
+      </Switch> */}
     </Container>
   );
 }

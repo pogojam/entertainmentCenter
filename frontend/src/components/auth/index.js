@@ -52,14 +52,13 @@ const logoutUser = () => {
 
 export const useAuth = params => {
   const [isLoggedIn, setLogin] = useState(null);
-  const [token, setToken] = useState("123");
+  const [token, setToken] = useState("");
 
   auth.onAuthStateChanged(user => {
     if (user) {
-      console.log(user);
-      listeners.forEach(e => e(user.refreshToken));
-      setToken(user.refreshToken);
-      console.log(user);
+      user.getIdToken().then(token => {
+        listeners.forEach(e => e(token));
+      });
     } else {
       listeners.forEach(e => e(false));
     }

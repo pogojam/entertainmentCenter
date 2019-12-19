@@ -4,17 +4,44 @@ const MasterCode = 123983;
 
 module.exports = {
   DATE,
-  Query: {},
+  Query: {
+    getServices: async (parent, { token }, { database, auth }) => {
+      const user = await auth.verifyIdToken(token);
+      const output = [];
+      if (user.uid) {
+        const services = await database.collection("service").get();
+        services.forEach(snap => {
+          output.push(snap.data());
+        });
+        return output;
+      }
+    },
+    getBills: async (parent, { token, service }, { database, auth }) => {
+      const user = await auth.verifyIdToken(token);
+      const output = [];
+      if (user.uid) {
+        const bills = await database
+          .collection("bills")
+          .where("service", "==", service)
+          .get();
+        bills.forEach(snap => {
+          output.push(snap.data());
+        });
+        return output;
+      }
+    }
+  },
   Mutation: {
-    newService: (parent, name, { auth, database, ...rest }) => {
-      console.log("Server GRAPHQL", name);
-      // const utilCollection = database.collection("utility").doc(name);
-      // utilCollection.set({ name, cycle, startDate });
+    newService: async (parent, { input }, { auth, database, ...rest }) => {
+      const { name, cycle, startDate, token } = input;
 
-      //   const user = await auth.verifyIdToken(token);
-      return {
-        name: "Hi"
-      };
+      const user = await auth.verifyIdToken(token);
+
+      if (user.uid) {
+        const utilCollection = database.collection("service").doc(name);
+        await utilCollection.set({ name, cycle, startDate });
+      } else {
+      }
     }
   }
 };
