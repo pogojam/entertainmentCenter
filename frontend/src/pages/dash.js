@@ -5,6 +5,7 @@ import styled from "styled-components";
 import gql from "graphql-tag";
 import { useAuth } from "../components/auth/index";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useSpring, animated } from "react-spring";
 
 const Container = styled(Flex)``;
 
@@ -16,6 +17,13 @@ const MUTATION_NewService = gql`
   }
 `;
 
+const MUTATION_changeBill = gql`
+  mutation changeBill($id: ID, $input: billInput) {
+    changeBill(id: $id, input: $input) {
+      dueDate
+    }
+  }
+`;
 const QUERY_Bills = gql`
   query getBills($token: String, $service: String) {
     getBills(token: $token, service: $service) {
@@ -75,6 +83,8 @@ const AddServiceCard = ({ token }) => {
 };
 
 const BillSlider = ({ service, token }) => {
+  const [newAmount, setAmount] = useState();
+
   const { loading, error, data } = useQuery(QUERY_Bills, {
     variables: {
       service,
@@ -82,12 +92,46 @@ const BillSlider = ({ service, token }) => {
     }
   });
 
+  // const [changeBill] = useMutation(MUTATION_changeBill);
+
+  const changeBill = e => {
+    e.preventDefault();
+    // changeBill({variables:{
+    //   id:
+    //   ,
+    //     input:{
+
+    //     }
+    // }})
+  };
+
   return loading
     ? null
-    : data.getBills.map(({ dueDate }) => (
-        <Box>
-          <Heading>{dueDate}</Heading>
-        </Box>
+    : data.getBills.map(({ dueDate, billPayed, pastDue, amount }) => (
+        <Flex
+          m=".2em"
+          alignItems="center"
+          justifyContent="center"
+          flexDirection="column"
+          style={{ height: "100%", boxShadow: "#312f2f8f 0px 9px 8px 0px" }}
+          maxWidth="10%"
+          as="form"
+          onSubmit={changeBill}
+        >
+          <Heading fontSize=".8em">{dueDate}</Heading>
+          {amount ? (
+            amount
+          ) : (
+            <>
+              <input
+                onChange={e => setAmount(e.target.value)}
+                style={{ maxWidth: "30%" }}
+                type="number"
+              />
+              <input type="submit" />
+            </>
+          )}
+        </Flex>
       ));
 };
 
@@ -105,7 +149,7 @@ const ServiceSliders = ({ token }) => {
           <Heading p="2em" style={{ flexBasis: "30%" }}>
             {name}
           </Heading>
-          <Box bg="beige" style={{ flexBasis: "100%" }}>
+          <Box bg="beige" p=".3em" style={{ flexBasis: "100%" }}>
             <BillSlider token={token} service={name} />
           </Box>
         </Flex>
@@ -139,10 +183,46 @@ const DASH_Utility = () => {
 };
 
 const Nav = () => {
+  const inAmin = useSpring({
+    from: {
+      transform: "translateX(-100%)"
+    },
+    to: {
+      transform: "translateX(0%)"
+    }
+  });
+
+  const NavLink = styled(Link)`
+    text-decoration: none;
+    color: black;
+    font-family: "Oswald", sans-serif;
+    font-size: 2em;
+    font-weight: 900;
+    width: 100%;
+    background-color: #00e4e4;
+    /* Animations */
+    transition: all 0.6s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    &:hover {
+      transform: scale(1.1);
+      background-color: black;
+      color: white;
+    }
+  `;
+
+  const NavContainer = animated(styled(Flex)`
+    overflow: hidden;
+  `);
+
   return (
-    <Box>
-      <Link>Utilities</Link>
-    </Box>
+    <NavContainer
+      alignItems="center"
+      justifyContent="spaced-evenly"
+      flexBasis="25%"
+      bg="#00dcff"
+      style={inAmin}
+    >
+      <NavLink>Utilities</NavLink>
+    </NavContainer>
   );
 };
 
