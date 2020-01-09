@@ -25,7 +25,7 @@ module.exports = {
           .where("service", "==", service)
           .get();
         bills.forEach(snap => {
-          output.push(snap.data());
+          output.push({ id: snap.id, ...snap.data() });
         });
         return output;
       }
@@ -40,6 +40,21 @@ module.exports = {
       if (user.uid) {
         const utilCollection = database.collection("service").doc(name);
         await utilCollection.set({ name, cycle, startDate });
+      } else {
+      }
+    },
+    changeBill: async (
+      parent,
+      { token, input },
+      { auth, database, ...rest }
+    ) => {
+      const { amount, id } = input;
+
+      const user = await auth.verifyIdToken(token);
+
+      if (user.uid) {
+        const bill = database.collection("bill").doc(id);
+        await bill.set({ amount: amount });
       } else {
       }
     }
