@@ -25,7 +25,7 @@ module.exports = {
           .where("service", "==", service)
           .get();
         bills.forEach(snap => {
-          output.push(snap.data());
+          output.push({ id: snap.id, ...snap.data() });
         });
         return output;
       }
@@ -40,6 +40,37 @@ module.exports = {
       if (user.uid) {
         const utilCollection = database.collection("service").doc(name);
         await utilCollection.set({ name, cycle, startDate });
+      } else {
+      }
+    },
+    removeService: async (parent, { input }, { auth, database, ...rest }) => {
+      const { name, cycle, startDate, token } = input;
+
+      const user = await auth.verifyIdToken(token);
+
+      if (user.uid) {
+        console.log("remove");
+
+        const service = await database
+          .collection("service")
+          .doc(name)
+          .delete();
+        console.log("removed ", service);
+      } else {
+      }
+    },
+    changeBill: async (
+      parent,
+      { token, input },
+      { auth, database, ...rest }
+    ) => {
+      const { amount, id } = input;
+
+      const user = await auth.verifyIdToken(token);
+
+      if (user.uid) {
+        const bill = database.collection("bill").doc(id);
+        await bill.set({ amount: amount });
       } else {
       }
     }

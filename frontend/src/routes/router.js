@@ -1,6 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch
+} from "react-router-dom";
 import { Dash, Movies, Music, Storage, Login } from "../pages";
 import build from "../pages/build.json";
 import Nav from "../components/nav/mainNav";
@@ -48,13 +53,15 @@ const AppRouter = params => {
         logout={authRest[2]}
       />
       <Layout>
-        <Route path="/Login" exact component={Login} />
-        <PrivateRoutes isLoggedIn={isLoggedIn}>
-          <Route path="/" exact component={Dash} />
-          <Route path="/Movies" exact component={Movies} />
-          <Route path="/Music" exact component={Music} />
-          <Route path="/Storage" exact component={Storage} />
-        </PrivateRoutes>
+        <Switch>
+          <Route path="/Login" component={Login} />
+          <PrivateRoutes isLoggedIn={isLoggedIn}>
+            <Route path="/Dash" component={Dash} />
+            <Route path="/Movies" component={Movies} />
+            <Route path="/Music" component={Music} />
+            <Route path="/Storage" component={Storage} />
+          </PrivateRoutes>
+        </Switch>
       </Layout>
     </Router>
   );
