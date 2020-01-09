@@ -6,6 +6,12 @@ import gql from "graphql-tag";
 import { useAuth } from "../components/auth/index";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { useSpring, animated } from "react-spring";
+import {
+  MdEventAvailable,
+  MdPerson,
+  MdAccountBalance,
+  MdDelete
+} from "react-icons/md";
 
 const Container = styled(Flex)``;
 
@@ -18,9 +24,9 @@ const MUTATION_NewService = gql`
 `;
 
 const MUTATION_changeBill = gql`
-  mutation changeBill($id: ID, $input: billInput) {
-    changeBill(id: $id, input: $input) {
-      dueDate
+  mutation changeBill($token: String, $input: billInput) {
+    changeBill(token: $token, input: $input) {
+      amount
     }
   }
 `;
@@ -28,6 +34,7 @@ const QUERY_Bills = gql`
   query getBills($token: String, $service: String) {
     getBills(token: $token, service: $service) {
       dueDate
+      id
     }
   }
 `;
@@ -40,6 +47,12 @@ const QUERY_Services = gql`
   }
 `;
 
+const template = {
+  bg: "#5c548a2b",
+  secondary: "aqua",
+  containerPadding: "1.5em"
+};
+
 const AddServiceCard = ({ token }) => {
   const [cycle, setCycle] = useState(null);
   const [startDate, setDate] = useState(null);
@@ -51,7 +64,8 @@ const AddServiceCard = ({ token }) => {
     addService({
       variables: {
         input: { cycle: parseInt(cycle, 10), startDate, name, token }
-      }
+      },
+      refetchQueries: [QUERY_Bills]
     });
     reset();
   };
@@ -92,17 +106,20 @@ const BillSlider = ({ service, token }) => {
     }
   });
 
-  // const [changeBill] = useMutation(MUTATION_changeBill);
+  const [setBill] = useMutation(MUTATION_changeBill);
 
   const changeBill = e => {
     e.preventDefault();
-    // changeBill({variables:{
-    //   id:
-    //   ,
-    //     input:{
-
-    //     }
-    // }})
+    console.log(data);
+    setBill({
+      variables: {
+        token,
+        input: {
+          amount: newAmount,
+          id: data.id
+        }
+      }
+    });
   };
 
   return loading
@@ -113,8 +130,9 @@ const BillSlider = ({ service, token }) => {
           alignItems="center"
           justifyContent="center"
           flexDirection="column"
-          style={{ height: "100%", boxShadow: "#312f2f8f 0px 9px 8px 0px" }}
+          style={{ boxShadow: "rgba(0, 0, 0, 0.59) 0px 3px 9px 1px" }}
           maxWidth="10%"
+          minWidth="70px"
           as="form"
           onSubmit={changeBill}
         >
@@ -125,7 +143,7 @@ const BillSlider = ({ service, token }) => {
             <>
               <input
                 onChange={e => setAmount(e.target.value)}
-                style={{ maxWidth: "30%" }}
+                style={{ maxWidth: "80%" }}
                 type="number"
               />
               <input type="submit" />
@@ -133,6 +151,43 @@ const BillSlider = ({ service, token }) => {
           )}
         </Flex>
       ));
+};
+
+const MenuContainer = styled(Box)`
+  margin-left: auto;
+  .bar {
+    width: 2em;
+    height: 2px;
+    background-color: #1a927c;
+    margin: 5px 0;
+  }
+`;
+
+const OptionsButton = () => {
+  const [state, setState] = useState(false);
+
+  return (
+    <MenuContainer onClick={() => setState(!state)}>
+      <div className="bar" />
+      <div className="bar" />
+      <div className="bar" />
+      <Box
+        p=".5em"
+        bg="black"
+        style={{
+          borderRadius: "4px",
+          position: "absolute",
+          height: "100%",
+          top: 0,
+          right: 0,
+          transition: ".5s linear",
+          transform: state ? "translateX(0%)" : "translateX(100%)"
+        }}
+      >
+        delete <MdDelete />
+      </Box>
+    </MenuContainer>
+  );
 };
 
 const ServiceSliders = ({ token }) => {
@@ -145,13 +200,20 @@ const ServiceSliders = ({ token }) => {
   return loading
     ? null
     : data.getServices.map(({ name }) => (
-        <Flex width="100%">
-          <Heading p="2em" style={{ flexBasis: "30%" }}>
-            {name}
-          </Heading>
-          <Box bg="beige" p=".3em" style={{ flexBasis: "100%" }}>
+        <Flex
+          className="wrapper"
+          flexDirection="column"
+          style={{ overflow: "hidden", position: "relative" }}
+          p={"1.5em"}
+          width="100%"
+        >
+          <Flex>
+            <Heading fontSize=".8em">{name}</Heading>
+            <OptionsButton />
+          </Flex>
+          <Flex p=".3em" style={{ flexBasis: "100%" }}>
             <BillSlider token={token} service={name} />
-          </Box>
+          </Flex>
         </Flex>
       ));
 };
@@ -159,26 +221,37 @@ const ServiceSliders = ({ token }) => {
 const DASH_Utility = () => {
   const [token] = useAuth();
 
+  const DashContainer = styled(Box)`
+    display: grid;
+    grid-gap: ${template.containerPadding};
+
+    .wrapper {
+      border-radius: 4px;
+      background: ${template.bg};
+    }
+
+    input,
+    select,
+    textarea {
+      color: ${template.secondary};
+      border-color: ${template.secondary};
+    }
+  `;
+
   return (
-    <Flex
-      flexDirection="column"
-      alignItems="center"
-      bg="grey"
-      width="100%"
-      height="100%"
-    >
+    <DashContainer p="1.5em" width="100%" height="100%">
       <Flex
+        className="wrapper"
         flexDirection="column"
         alignItems="center"
-        p="1.5em"
-        width="100%"
-        bg="#969696"
+        justifyContent="space-around"
+        p={template.containerPadding}
       >
         <Heading>New Utility Service</Heading>
         <AddServiceCard token={token} />
       </Flex>
       {token && <ServiceSliders token={token} />}
-    </Flex>
+    </DashContainer>
   );
 };
 
@@ -194,22 +267,43 @@ const Nav = () => {
 
   const NavLink = styled(Link)`
     text-decoration: none;
-    color: black;
     font-family: "Oswald", sans-serif;
-    font-size: 2em;
+    font-size: 1em;
     font-weight: 900;
-    width: 100%;
-    background-color: #00e4e4;
+    color: ${template.secondary};
+    padding: 1em;
+    display: flex;
+
+    svg {
+      margin-right: 0.5em;
+    }
+
     /* Animations */
     transition: all 0.6s cubic-bezier(0.455, 0.03, 0.515, 0.955);
     &:hover {
-      transform: scale(1.1);
-      background-color: black;
-      color: white;
+      background-color: #090b0c69;
     }
   `;
 
   const NavContainer = animated(styled(Flex)`
+    display: flex;
+    flex-direction: column;
+    padding: ${template.containerPadding};
+    padding-right: 0;
+    .wrapper {
+      background: ${template.bg};
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      margin-bottom: 1em;
+      border-radius: 4px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
     overflow: hidden;
   `);
 
@@ -218,17 +312,34 @@ const Nav = () => {
       alignItems="center"
       justifyContent="spaced-evenly"
       flexBasis="25%"
-      bg="#00dcff"
       style={inAmin}
     >
-      <NavLink>Utilities</NavLink>
+      <Flex
+        justifyContent="center"
+        alignItems="center"
+        maxHeight="10em"
+        className="wrapper"
+      >
+        <MdAccountBalance size="3.5em" />
+      </Flex>
+
+      <Box pt="3em" className="wrapper">
+        <NavLink>
+          <MdEventAvailable />
+          Utilities
+        </NavLink>
+        <NavLink>
+          <MdPerson />
+          Roomate
+        </NavLink>
+      </Box>
     </NavContainer>
   );
 };
 
 export default function Dash() {
   return (
-    <Container height="100%">
+    <Container style={{ color: template.secondary }} height="100%">
       <Nav />
       <DASH_Utility />
       {/* <Switch>
