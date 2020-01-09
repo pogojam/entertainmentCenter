@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { Flex, Image, Button } from "rebass";
 import { useSpring, animated } from "react-spring";
-import { posix } from "path";
 
 const StyledButton = styled(Button)`
   transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -12,19 +11,21 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const NavButton = ({ name, path, onClick }) => (
-  <Link to={path}>
-    <StyledButton onClick={onClick} bg="transparent" color="#22ce99" m="1em">
-      {name}
-    </StyledButton>
-  </Link>
-);
+const NavButton = ({ name, path, onClick }) => {
+  console.log(path);
+  return (
+    <Link to={path}>
+      <StyledButton onClick={onClick} bg="transparent" color="#22ce99" m="1em">
+        {name}
+      </StyledButton>
+    </Link>
+  );
+};
 
 const Container = ({ children, logo, style }) => {
   const Animated = styled(animated(Flex))`
     top: 0;
     z-index: 999;
-    background: #030008d1;
   `;
 
   return (

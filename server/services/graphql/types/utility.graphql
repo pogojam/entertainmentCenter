@@ -2,7 +2,8 @@ scalar Date
 
 type Mutation {
   newService(input: serviceInput): Service
-  changeBill(id: ID, Input: billInput): Bill
+  removeService(input: serviceInput): Service
+  changeBill(token: String, Input: billInput): Bill
 }
 
 type Query {
@@ -18,12 +19,14 @@ input serviceInput {
 }
 
 input billInput {
+  id: ID
   paidUsers: [ID]
   dueDate: Date
   pastDue: Boolean
   billPayed: Boolean
   service: String
   amount: Float
+  token: String
 }
 
 type Service {
