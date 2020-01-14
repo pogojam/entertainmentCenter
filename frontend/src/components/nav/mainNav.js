@@ -12,7 +12,6 @@ const StyledButton = styled(Button)`
 `;
 
 const NavButton = ({ name, path, onClick }) => {
-  console.log(path);
   return (
     <Link to={path}>
       <StyledButton onClick={onClick} bg="transparent" color="#22ce99" m="1em">

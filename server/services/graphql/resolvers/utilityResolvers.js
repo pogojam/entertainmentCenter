@@ -49,29 +49,27 @@ module.exports = {
       const user = await auth.verifyIdToken(token);
 
       if (user.uid) {
-        console.log("remove");
-
         const service = await database
           .collection("service")
           .doc(name)
           .delete();
-        console.log("removed ", service);
       } else {
       }
     },
-    changeBill: async (
-      parent,
-      { token, input },
-      { auth, database, ...rest }
-    ) => {
-      const { amount, id } = input;
-
-      const user = await auth.verifyIdToken(token);
-
-      if (user.uid) {
-        const bill = database.collection("bill").doc(id);
-        await bill.set({ amount: amount });
-      } else {
+    changeBill: async (parent, { input }, { auth, database, ...rest }) => {
+      const { amount, service, token } = input;
+      try {
+        const user = await auth.verifyIdToken(token);
+        console.log(service);
+        if (user.uid) {
+          const bill = await database
+            .collection("bills")
+            .doc(service)
+            .update({ amount: amount });
+        } else {
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
   }

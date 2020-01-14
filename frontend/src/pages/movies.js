@@ -59,7 +59,6 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
       borderRadius="3px"
       ref={containerRef}
       onClick={e => {
-        console.log(data);
         handleClick(data);
       }}
       onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
@@ -142,70 +141,69 @@ const MainPreview = ({
         // background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
-      {animation.map(({ item, props }) =>
+      {animation.map(({ item, props }, i) =>
         item ? (
-          <>
-            {" "}
-            <AnimationBox
-              p="3em"
+          <AnimationBox
+            key={i}
+            p="3em"
+            style={{
+              right: 0,
+              position: "absolute",
+              maxWidth: "45vw",
+              height: "100%",
+              flexDirection: "column",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-evenly",
+              zIndex: 0,
+              ...props
+            }}
+          >
+            <AnimationCard
+              width={["50vw"]}
               style={{
-                right: 0,
-                position: "absolute",
-                maxWidth: "45vw",
-                height: "100%",
-                flexDirection: "column",
+                left: 0,
+                top: 0,
+
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-evenly",
-                zIndex: 0,
+                justifyContent: "center",
                 ...props
               }}
             >
-              <AnimationCard
-                width={["50vw"]}
-                style={{
-                  left: 0,
-                  top: 0,
+              <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
+            </AnimationCard>
 
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  ...props
-                }}
-              >
-                <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
-              </AnimationCard>
-
-              <Heading
-                color="#d6d6d6"
-                fontSize="4em"
-                style={{ whiteSpace: "nowrap" }}
-                letterSpacing="16px"
-              >
-                {Title}
-              </Heading>
-              <Text textAlign="center" color="white" fontSize=".4em">
-                {Year}
-                <hr style={{ color: "white", width: "40%" }} />
-                {Awards}
-              </Text>
-              <Card pt="1em" color="white" fontSize=".8em">
-                <Text textAlign="left">{Plot}</Text>
-              </Card>
-              <Button
-                m=".5em"
-                onClick={() => togglePlayer(playerOptions)}
-                bg="white"
-                color="black"
-                maxWidth="8em"
-                alignSelf="center"
-              >
-                Watch
-              </Button>
-            </AnimationBox>
-          </>
+            <Heading
+              color="#d6d6d6"
+              fontSize="4em"
+              style={{ whiteSpace: "nowrap" }}
+              letterSpacing="16px"
+            >
+              {Title}
+            </Heading>
+            <Text textAlign="center" color="white" fontSize=".4em">
+              {Year}
+              <hr style={{ color: "white", width: "40%" }} />
+              {Awards}
+            </Text>
+            <Card pt="1em" color="white" fontSize=".8em">
+              <Text textAlign="left">{Plot}</Text>
+            </Card>
+            <Button
+              m=".5em"
+              onClick={() => togglePlayer(playerOptions)}
+              bg="white"
+              color="black"
+              maxWidth="8em"
+              alignSelf="center"
+            >
+              Watch
+            </Button>
+          </AnimationBox>
         ) : (
           <animated.div
+            key={i}
             style={{ ...props, margin: "auto", alignSelf: "center" }}
           >
             <Flex width={[1]} justifyContent="center" alignItems="center">
@@ -263,8 +261,6 @@ const Slider = ({ handleClick, category, Slide }) => {
       let roation = 0;
       if (wasAbove.current) {
         // Comes from top
-
-        console.log(entry);
         roation = deg - deg * ir;
       } else {
         roation = deg - deg * ir;
@@ -278,12 +274,9 @@ const Slider = ({ handleClick, category, Slide }) => {
   useEffect(() => {
     const inr = entry.intersectionRatio;
     if (inr) {
-      console.log(calcSpin(inr, 15));
       inr >= 0 && setAnim({ opc: [inr], sp: calcSpin(entry, 90) });
     }
   }, [entry, setAnim]);
-
-  console.log(scrollAnim);
 
   return (
     <>
@@ -316,7 +309,7 @@ const Slider = ({ handleClick, category, Slide }) => {
               {category}
             </Heading>
             {data.map((e, i) => (
-              <Slide handleClick={handleClick} {...e} />
+              <Slide key={i} handleClick={handleClick} {...e} />
             ))}
           </Flex>
         </animated.div>
