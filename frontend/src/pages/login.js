@@ -81,7 +81,7 @@ const Login = ({ initalState = true }) => {
               />
               <Input
                 onChange={({ target }) => {
-                  setLast(target.value);
+                  setCode(target.value);
                 }}
                 placeholder="Code"
                 name="code"
