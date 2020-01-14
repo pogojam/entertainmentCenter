@@ -26,8 +26,8 @@ const MUTATION_NewService = gql`
 `;
 
 const MUTATION_changeBill = gql`
-  mutation changeBill($token: String, $input: billInput) {
-    changeBill(token: $token, input: $input) {
+  mutation changeBill($input: billInput) {
+    changeBill(input: $input) {
       amount
     }
   }
@@ -46,6 +46,8 @@ const QUERY_Bills = gql`
     getBills(token: $token, service: $service) {
       dueDate
       id
+      amount
+      service
     }
   }
 `;
@@ -110,7 +112,7 @@ const AddServiceCard = ({ token }) => {
 const BillSlider = ({ service, token }) => {
   const [newAmount, setAmount] = useState();
 
-  const { loading, error, data } = useQuery(QUERY_Bills, {
+  const { loading, error, data, refetch } = useQuery(QUERY_Bills, {
     variables: {
       service,
       token
@@ -119,49 +121,51 @@ const BillSlider = ({ service, token }) => {
 
   const [setBill] = useMutation(MUTATION_changeBill);
 
-  const changeBill = e => {
+  const changeBill = (e, id) => {
     e.preventDefault();
-    console.log(data);
     setBill({
       variables: {
-        token,
         input: {
-          amount: newAmount,
-          id: data.id
+          token,
+          amount: Number(newAmount),
+          service: id
         }
       }
-    });
+    }).then(refetch);
   };
 
   return loading
     ? null
-    : data.getBills.map(({ dueDate, billPayed, pastDue, amount }) => (
-        <Flex
-          m=".2em"
-          alignItems="center"
-          justifyContent="center"
-          flexDirection="column"
-          style={{ boxShadow: "rgba(0, 0, 0, 0.59) 0px 3px 9px 1px" }}
-          maxWidth="10%"
-          minWidth="70px"
-          as="form"
-          onSubmit={changeBill}
-        >
-          <Heading fontSize=".8em">{dueDate}</Heading>
-          {amount ? (
-            amount
-          ) : (
-            <>
-              <input
-                onChange={e => setAmount(e.target.value)}
-                style={{ maxWidth: "80%" }}
-                type="number"
-              />
-              <input type="submit" />
-            </>
-          )}
-        </Flex>
-      ));
+    : data.getBills.map(
+        ({ dueDate, service, billPayed, pastDue, amount }, i) => (
+          <Flex
+            key={i}
+            m=".2em"
+            alignItems="center"
+            justifyContent="center"
+            flexDirection="column"
+            style={{ boxShadow: "rgba(0, 0, 0, 0.59) 0px 3px 9px 1px" }}
+            maxWidth="10%"
+            minWidth="70px"
+            as="form"
+            onSubmit={e => changeBill(e, service + "_" + dueDate)}
+          >
+            <Heading fontSize=".8em">{dueDate}</Heading>
+            {amount ? (
+              "$" + amount
+            ) : (
+              <>
+                <input
+                  onChange={e => setAmount(e.target.value)}
+                  style={{ maxWidth: "80%" }}
+                  type="number"
+                />
+                <input type="submit" />
+              </>
+            )}
+          </Flex>
+        )
+      );
 };
 
 const MenuContainer = styled(Box)`
@@ -213,7 +217,6 @@ const ServiceSliders = ({ token }) => {
   const [mutation] = useMutation(MUTATION_removeService);
 
   const removeService = name => {
-    console.log(name);
     mutation({
       variables: {
         input: {
@@ -227,8 +230,9 @@ const ServiceSliders = ({ token }) => {
 
   return loading
     ? null
-    : data.getServices.map(({ name }) => (
+    : data.getServices.map(({ name }, i) => (
         <Flex
+          key={i}
           className="wrapper"
           flexDirection="column"
           style={{ overflow: "hidden", position: "relative" }}
@@ -246,9 +250,7 @@ const ServiceSliders = ({ token }) => {
       ));
 };
 
-const DASH_Utility = () => {
-  const [token] = useAuth();
-
+const DASH_Utility = ({ token }) => {
   const DashContainer = styled(Box)`
     display: grid;
     grid-gap: ${template.containerPadding};
@@ -367,22 +369,19 @@ const Nav = ({ setIndex }) => {
 };
 const Pages = [DASH_Utility, Box];
 
+const subscriptions = [];
+
 export default function Dash() {
-  let { path, url } = useRouteMatch();
   const [index, setIndex] = useState(0);
-  const subscriptions = [];
-  const subscribeRefetch = sub => {
-    subscriptions.push(sub);
-  };
+  const [token] = useAuth();
+
   const Page = Pages[index];
 
-  useEffect(() => {
-    subscriptions.forEach(sub=>sub.)
-  }, [index])
+  useEffect(() => {}, [index]);
   return (
     <Container style={{ color: template.secondary }} height="100%">
       <Nav setIndex={setIndex} />
-      <Page />
+      <Page token={token} />
     </Container>
   );
 }
