@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import gql from "graphql-tag";
 import { auth } from "../../filebase/config";
+import { useMutation } from "@apollo/react-hooks";
 
 const listeners = [];
-let token = null;
+let state = null;
+
+const MUTATION_newUser = gql`
+  mutation newUser($input: userInput) {
+    newUser(input: $input) {
+      permissions
+    }
+  }
+`;
 
 const loginUser = (e, { pass, email }) => {
   e.preventDefault();
@@ -12,15 +21,28 @@ const loginUser = (e, { pass, email }) => {
   });
 };
 
-const creatNewUser = (
+const creatNewUser = mutate => (
   e,
   { pass, email, firstName, lastName, code },
   setErr
 ) => {
   e.preventDefault();
+
   auth
     .createUserWithEmailAndPassword(email, pass)
-    .then(e => {})
+    .then(({ user }) => {
+      const { uid } = user;
+      mutate({
+        variables: {
+          input: {
+            id: uid,
+            firstName,
+            code,
+            email
+          }
+        }
+      });
+    })
     .catch(err => {
       err && setErr(err.message);
     });
@@ -30,18 +52,22 @@ const logoutUser = () => {
   auth.signOut();
 };
 
+const setGlobalState = newState => {
+  const State = { ...newState, ...state };
+  listeners.forEach(e => e(State));
+};
+
 export const useAuth = params => {
-  const [isLoggedIn, setLogin] = useState(token);
+  const [State, setLogin] = useState(null);
+  const [addUser] = useMutation(MUTATION_newUser);
 
   auth.onAuthStateChanged(user => {
     if (user) {
       user.getIdToken().then(tk => {
-        token = tk;
-        listeners.forEach(e => e(tk));
+        setGlobalState({ token: tk });
       });
     } else {
-      token = null;
-      listeners.forEach(e => e(token));
+      setGlobalState({});
     }
   });
 
@@ -49,5 +75,5 @@ export const useAuth = params => {
     listeners.push(setLogin);
   }, []);
 
-  return [isLoggedIn, creatNewUser, loginUser, logoutUser];
+  return [state.token, creatNewUser(addUser), loginUser, logoutUser];
 };

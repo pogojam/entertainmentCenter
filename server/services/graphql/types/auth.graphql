@@ -5,6 +5,7 @@ type Mutation {
 }
 
 input userInput {
+  id: String
   firstName: String!
   lastname: String
   email: String
