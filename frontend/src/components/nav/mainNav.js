@@ -43,8 +43,10 @@ const Container = ({ children, logo, style }) => {
 const buildButtons = (pages, handleClick) =>
   pages.map((e, i) => <NavButton key={e.name + i} {...e} />);
 
-const Nav = ({ visible, pages, logout, isLoggedIn }) => {
+const Nav = ({ visible, pages, logout, isLoggedIn, user }) => {
   const [isVisible, toggleVisible] = useState(visible);
+
+  console.log(user);
 
   const animation = useSpring({
     transform: isVisible ? "translateY(0%)" : "translateY(-100%)"

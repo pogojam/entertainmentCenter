@@ -4,17 +4,28 @@ type Mutation {
   newUser(input: userInput): User
 }
 
+type Query {
+  getRole(id: String): Role
+}
+
 input userInput {
+  pass: String
   id: String
-  firstName: String!
+  firstName: String
   lastname: String
   email: String
   code: String
 }
 
 type User {
+  pass: String
   firstName: String
   lastName: String
   email: String
   permissions: String
+}
+
+type Role {
+  role: String
+  id: String
 }
