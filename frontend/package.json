@@ -29,7 +29,8 @@
     "rebass": "^3.2.0",
     "socket.io": "^2.2.0",
     "socket.io-stream": "^0.9.1",
-    "styled-components": "^4.3.2"
+    "styled-components": "^4.3.2",
+    "unstated-next": "^1.1.0"
   },
   "scripts": {
     "start": " node ./build/build.js && react-scripts start -r dotenv",

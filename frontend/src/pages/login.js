@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Redirect } from "react-router-dom";
-import { useAuth } from "../components/auth/index";
+import { Auth } from "../components/auth/index";
 import { Box, Heading, Flex, Button } from "rebass";
-
 const Input = styled.input``;
 
 const InputBox = styled(Box)`
@@ -13,10 +12,10 @@ const InputBox = styled(Box)`
   }
 `;
 
-const Login = ({ initalState = true }) => {
+const Login = ({ initalState = true, location }) => {
   const [isLogin, setFormState] = useState(initalState);
+  const { user, handleNewuser, handleLogin } = Auth.useContainer();
 
-  const [isLoggedIn, handleNewuser, handleLogin] = useAuth();
   const [err, setErr] = useState(null);
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -24,15 +23,21 @@ const Login = ({ initalState = true }) => {
   const [lastName, setLast] = useState("");
   const [code, setCode] = useState("");
 
-  return isLoggedIn ? (
+  return user ? (
     <Redirect to="/Dash" />
   ) : (
     <Flex
-      onSubmit={e =>
-        isLogin
-          ? handleLogin(e, { email, pass }, setErr)
-          : handleNewuser(e, { email, pass, firstName, lastName, code }, setErr)
-      }
+      onSubmit={async e => {
+        e.preventDefault();
+        try {
+          isLogin
+            ? handleLogin({ email, pass })
+            : handleNewuser({ email, pass, firstName, lastName, code });
+          location.pathname = "/Dash";
+        } catch (err) {
+          setErr(err);
+        }
+      }}
       justifyContent="center"
       alignItems="center"
       style={{ height: "100%", width: "100%" }}

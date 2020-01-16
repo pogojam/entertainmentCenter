@@ -5,10 +5,22 @@ const {
   mergeResolvers,
   fileLoader
 } = require("merge-graphql-schemas");
-const { database, auth } = require("./firebase");
+const { auth } = require("./firebase");
+const { database } = require("./database");
 
-const context = ({ req }) => {
-  return { database, auth };
+const context = async ({ req }) => {
+  const token = req.headers.authorization;
+  let user = null;
+
+  if (token) {
+    const { uid } = await auth.verifyIdToken(token);
+    const { role } = await database.auth.getRole(uid);
+    user = {
+      uid,
+      role
+    };
+  }
+  return { database, auth, user };
 };
 
 const typeDefs = mergeTypes(

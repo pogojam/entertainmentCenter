@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import {
   BrowserRouter as Router,
@@ -9,7 +9,7 @@ import {
 import { Dash, Movies, Music, Storage, Login } from "../pages";
 import build from "../pages/build.json";
 import Nav from "../components/nav/mainNav";
-import { useAuth } from "../components/auth/index";
+import { Auth } from "../components/auth/index";
 
 const Layout = ({ children }) => {
   return (
@@ -28,14 +28,11 @@ const Layout = ({ children }) => {
   );
 };
 
-const AppRouter = params => {
-  const [isLoggedIn, ...authRest] = useAuth();
-  // const token = authState.token;
-
-  const PrivateRoutes = ({ isLoggedIn, children }) => (
+const PrivateRoutes = ({ User, children }) => {
+  return (
     <Route
       render={({ location, ...rest }) => {
-        return !isLoggedIn ? (
+        return !User ? (
           <Redirect key={location.pathname} to="/Login" />
         ) : (
           children
@@ -43,23 +40,29 @@ const AppRouter = params => {
       }}
     />
   );
+};
+
+const AppRouter = params => {
+  const { User, handleLogout } = Auth.useContainer();
+
+  const withUser = Component => props => <Component User={User} {...props} />;
 
   return (
     <Router>
       <Nav
         visible={true}
         pages={build.pages}
-        isLoggedIn={isLoggedIn}
-        logout={authRest[2]}
+        isLoggedIn={User}
+        logout={handleLogout}
       />
       <Layout>
         <Switch>
           <Route path="/Login" component={Login} />
-          <PrivateRoutes isLoggedIn={isLoggedIn}>
-            <Route path="/Dash" component={Dash} />
-            <Route path="/Movies" component={Movies} />
-            <Route path="/Music" component={Music} />
-            <Route path="/Storage" component={Storage} />
+          <PrivateRoutes User={User}>
+            <Route path="/Dash" component={withUser(Dash)} />
+            <Route path="/Movies" component={withUser(Movies)} />
+            <Route path="/Music" component={withUser(Music)} />
+            <Route path="/Storage" component={withUser(Storage)} />
           </PrivateRoutes>
         </Switch>
       </Layout>
