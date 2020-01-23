@@ -1,4 +1,5 @@
 require("./services/jobs");
+require("./services/aws/config");
 const app = require("express")();
 const apolloServer = require("./services/apollo");
 const server = require("http").Server(app);

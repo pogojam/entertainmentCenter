@@ -2,10 +2,11 @@ scalar Date
 
 type Mutation {
   newUser(input: userInput): User
+  createSubscription(token: String): User
 }
 
 type Query {
-  getRole(id: String): Role
+  getUser(id: [String]): [User]
 }
 
 input userInput {
@@ -22,7 +23,8 @@ type User {
   firstName: String
   lastName: String
   email: String
-  permissions: String
+  autoPay: Boolean
+  role: String
 }
 
 type Role {

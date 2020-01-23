@@ -7,6 +7,7 @@ const {
 } = require("merge-graphql-schemas");
 const { auth } = require("./firebase");
 const { database } = require("./database");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 const context = async ({ req }) => {
   const token = req.headers.authorization;
@@ -14,13 +15,13 @@ const context = async ({ req }) => {
 
   if (token) {
     const { uid } = await auth.verifyIdToken(token);
-    const { role } = await database.auth.getRole(uid);
+    const { role } = await database.auth.getUser([uid]);
     user = {
       uid,
       role
     };
   }
-  return { database, auth, user };
+  return { database, auth, user, stripe };
 };
 
 const typeDefs = mergeTypes(

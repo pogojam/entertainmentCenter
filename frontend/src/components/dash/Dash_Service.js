@@ -90,7 +90,6 @@ const Slider = ({ children, admin }) => {
           className="wrapper"
           flexDirection="column"
           style={{ overflow: "hidden", position: "relative" }}
-          p={"1.5em"}
           width="100%"
         >
           <Flex>

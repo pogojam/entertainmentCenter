@@ -7,6 +7,7 @@ import { createUploadLink } from "apollo-upload-client";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { setContext } from "apollo-link-context";
 import { Auth } from "./components/auth/index";
+import { StripeProvider } from "react-stripe-elements";
 import "./filebase/config";
 import "./App.css";
 
@@ -30,11 +31,13 @@ export const client = new ApolloClient({
 function App() {
   return (
     <div style={{ overflowY: "scroll" }} className="App">
-      <Auth.Provider>
-        <ApolloProvider client={client}>
-          <AppRouter />
-        </ApolloProvider>
-      </Auth.Provider>
+      <StripeProvider apiKey={process.env.REACT_APP_STRIPE_KEY}>
+        <Auth.Provider>
+          <ApolloProvider client={client}>
+            <AppRouter />
+          </ApolloProvider>
+        </Auth.Provider>
+      </StripeProvider>
     </div>
   );
 }
