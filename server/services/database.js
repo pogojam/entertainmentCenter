@@ -1,19 +1,66 @@
-const { database: firebaseDatabase, firebaseAuth } = require("./firebase");
+const {
+  database: firebaseDatabase,
+  firebaseAuth,
+  admin
+} = require("./firebase");
 const axio = require("axios");
 
-const auth = {
-  rolesRef: firebaseDatabase.collection("roles"),
-  getRole: async function(id) {
-    const dbRole = await this.rolesRef.doc(id).get();
-    const role = await dbRole.data();
-    return role;
+const chore = {
+  choresRef: firebaseDatabase.collection("chores"),
+  setChore: async function({ chore, date, user }) {
+    try {
+      const timeStamp = admin.firestore.Timestamp.fromDate(new Date(date));
+      console.log(timeStamp);
+      const newChore = await this.choresRef.doc(chore + date).set({
+        chore,
+        date: timeStamp,
+        user,
+        complete: false
+      });
+      return newChore;
+    } catch (err) {
+      console.log(err);
+    }
   },
-  setRole: async function({ id, role }) {
-    const newRole = await this.rolesRef.doc(id).set({
-      id,
-      role
-    });
-    return newRole;
+  getChores: async function({ start, end }) {
+    const output = [];
+    try {
+      const chores = await this.choresRef
+        .where("date", ">", new Date(start))
+        .where("date", "<", new Date(end))
+        .get();
+
+      chores.forEach(snap => {
+        const data = snap.data();
+        data.date = data.date.toDate();
+        output.push(data);
+      });
+
+      return output;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+};
+
+const auth = {
+  usersRef: firebaseDatabase.collection("users"),
+  getUser: async function(id) {
+    const output = [];
+    if (id.length === 1) {
+      const dbRole = await this.usersRef.doc(id[0]).get();
+      const user = await dbRole.data();
+      output.push(user);
+    }
+    return output;
+  },
+  addUser: async function(userData) {
+    const newUser = await this.usersRef.doc(userData.id).set(userData);
+    return newUser;
+  },
+  updateUser: async function(uid,userData) {
+    const newUser = await this.usersRef.doc(uid).update(userData);
+    return newUser;
   }
 };
 
@@ -85,7 +132,8 @@ const movie = {
 const database = {
   auth,
   utility,
-  movie
+  movie,
+  chore
 };
 
 module.exports = { database };

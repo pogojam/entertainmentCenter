@@ -16,6 +16,7 @@
     "firebaseui": "^4.3.0",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
+    "moment": "^2.24.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-dropzone": "^10.1.7",
@@ -25,6 +26,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.0.1",
     "react-spring": "^8.0.27",
+    "react-stripe-elements": "^6.0.1",
     "react-with-firebase-auth": "^1.2.0",
     "rebass": "^3.2.0",
     "socket.io": "^2.2.0",
@@ -33,7 +35,7 @@
     "unstated-next": "^1.1.0"
   },
   "scripts": {
-    "start": " node ./build/build.js && react-scripts start -r dotenv",
+    "start": " node ./build/build.js && react-scripts  -r dotenv/config start ",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

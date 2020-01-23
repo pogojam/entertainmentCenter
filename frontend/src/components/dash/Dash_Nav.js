@@ -1,11 +1,47 @@
 import React from "react";
 import styled from "styled-components";
 import { useSpring, animated } from "react-spring";
-import { MdEventAvailable, MdPerson, MdAccountBalance } from "react-icons/md";
+import {
+  MdEventAvailable,
+  MdPerson,
+  MdAccountBalance,
+  MdHome
+} from "react-icons/md";
 import { Box, Flex } from "rebass";
 import { template } from "./Dash_Template";
 
-export const Nav = ({ setIndex }) => {
+const LinkContainer = styled(Box)`
+  text-decoration: none;
+  font-family: "Oswald", sans-serif;
+  font-size: 1em;
+  font-weight: 900;
+  color: ${template.secondary};
+  padding: 1em;
+  display: flex;
+
+  svg {
+    margin-right: 0.5em;
+  }
+
+  /* Animations */
+  transition: all 0.6s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  &:hover {
+    background-color: #090b0c69;
+  }
+`;
+
+const Link = ({ isActive, index, navigatePage, Icon, title }) => (
+  <LinkContainer
+    bg={isActive && "#090b0c69"}
+    isActive={isActive}
+    onClick={() => navigatePage(index)}
+  >
+    <Icon />
+    {title}
+  </LinkContainer>
+);
+
+export const Nav = ({ Pages, activeIndex, setIndex }) => {
   const inAmin = useSpring({
     from: {
       transform: "translateX(-100%)"
@@ -14,26 +50,6 @@ export const Nav = ({ setIndex }) => {
       transform: "translateX(0%)"
     }
   });
-
-  const NavLink = styled(Box)`
-    text-decoration: none;
-    font-family: "Oswald", sans-serif;
-    font-size: 1em;
-    font-weight: 900;
-    color: ${template.secondary};
-    padding: 1em;
-    display: flex;
-
-    svg {
-      margin-right: 0.5em;
-    }
-
-    /* Animations */
-    transition: all 0.6s cubic-bezier(0.455, 0.03, 0.515, 0.955);
-    &:hover {
-      background-color: #090b0c69;
-    }
-  `;
 
   const NavContainer = animated(styled(Flex)`
     display: flex;
@@ -74,18 +90,16 @@ export const Nav = ({ setIndex }) => {
       </Flex>
 
       <Box pt="3em" className="wrapper">
-        <NavLink onClick={() => setIndex(0)}>
-          <MdEventAvailable />
-          Utilities
-        </NavLink>
-        <NavLink onClick={() => setIndex(1)}>
-          <MdPerson />
-          Roomate
-        </NavLink>
-        <NavLink onClick={() => setIndex(2)}>
-          <MdPerson />
-          Home
-        </NavLink>
+        {Pages.map(({ title, icon }, i) => (
+          <Link
+            isActive={activeIndex === i}
+            title={title}
+            Icon={icon}
+            navigatePage={setIndex}
+            index={i}
+            key={i}
+          />
+        ))}
       </Box>
     </NavContainer>
   );

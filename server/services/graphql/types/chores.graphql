@@ -1,0 +1,21 @@
+scalar DATE
+type Query {
+  getChores(start: DATE, end: DATE): [Chore]
+}
+
+type Mutation {
+  addChore(input: choreInput): Chore
+}
+
+input choreInput {
+  chore: String
+  user: String
+  date: DATE
+}
+
+type Chore {
+  chore: String
+  user: String
+  date: DATE
+  complete: Boolean
+}

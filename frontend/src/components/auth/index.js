@@ -3,7 +3,6 @@ import gql from "graphql-tag";
 import { auth } from "../../filebase/config";
 import { useMutation, useLazyQuery } from "@apollo/react-hooks";
 import { createContainer } from "unstated-next";
-import { useApolloClient } from "@apollo/react-hooks";
 import { client } from "../../App";
 
 const MUTATION_newUser = gql`
@@ -13,10 +12,11 @@ const MUTATION_newUser = gql`
     }
   }
 `;
-const QUERY_getRole = gql`
-  query getRole($id: String) {
-    getRole(id: $id) {
+const QUERY_getUser = gql`
+  query getUser($id: [String]) {
+    getUser(id: $id) {
       role
+      autoPay
     }
   }
 `;
@@ -53,7 +53,7 @@ const handleLogout = () => {
 const useAuth = () => {
   const [User, setUser] = useState(null);
   const [addUser] = useMutation(MUTATION_newUser, { client: client });
-  const [getRole, { loading, data }] = useLazyQuery(QUERY_getRole, {
+  const [getUser, { loading, data }] = useLazyQuery(QUERY_getUser, {
     client: client
   });
   const handleNewuser = creatNewUser(addUser);
@@ -61,12 +61,12 @@ const useAuth = () => {
   useEffect(() => {
     auth.onAuthStateChanged(user => {
       if (user) {
-        const id = user.uid;
+        const id = [user.uid];
         setUser(user);
         user.getIdToken().then(tk => {
           localStorage.setItem("token", tk);
         });
-        getRole({
+        getUser({
           variables: { id }
         });
       } else {
@@ -78,7 +78,9 @@ const useAuth = () => {
 
   useEffect(() => {
     if (data) {
-      setUser(prev => ({ ...prev, ...data.getRole }));
+      const { getUser: user } = data;
+
+      user && setUser(prev => ({ ...prev, ...user[0] }));
     }
   }, [data]);
 
