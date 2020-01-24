@@ -49,10 +49,14 @@ const DayContainer = styled(Box)`
 
 const CalendarContainer = styled(Box)`
   display: grid;
-  grid-template-columns: repeat(7, minMax(100px, 1fr));
+  grid-template-columns: repeat(7, minMax(25px, 1fr));
   grid-template-rows: 50px;
   min-height: 300px;
   .label {
+    font-size: 1.2vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 1em;
     background: #240d2f;
   }

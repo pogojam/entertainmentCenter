@@ -20,8 +20,8 @@ module.exports = {
       database.utility.removeService(name);
     },
     changeBill: async (parent, { input }, { auth, database, ...rest }) => {
-      const { amount, service, token } = input;
-      database.utility.changeBill({ amount, service, token });
+      const { amount, bill, token } = input;
+      database.utility.changeBill({ amount, bill, token });
     }
   }
 };

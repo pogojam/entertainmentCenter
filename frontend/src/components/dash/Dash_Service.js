@@ -1,6 +1,5 @@
 import React, { useState, Children } from "react";
-import styled from "styled-components";
-import { useSpring, animated } from "react-spring";
+
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { Heading, Flex } from "rebass";
 import { OptionsButton } from "./Dash_Buttons";
@@ -9,7 +8,7 @@ import {
   MUTATION_removeService,
   MUTATION_NewService
 } from "./Dash_Graphql";
-import { template } from "./Dash_Template";
+import { Template } from "../template";
 
 const AddServiceForm = () => {
   const [cycle, setCycle] = useState(null);
@@ -60,7 +59,7 @@ const CreateService = () => (
     flexDirection="column"
     alignItems="center"
     justifyContent="space-around"
-    p={template.containerPadding}
+    p={Template.containerPadding}
   >
     <Heading>New Utility Service</Heading>
     <AddServiceForm />

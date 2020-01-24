@@ -14,7 +14,13 @@ const StyledButton = styled(Button)`
 const NavButton = ({ name, path, onClick }) => {
   return (
     <Link to={path}>
-      <StyledButton onClick={onClick} bg="transparent" color="#22ce99" m="1em">
+      <StyledButton
+        onClick={onClick}
+        bg="transparent"
+        m={["", "1em"]}
+        mt={[".5em", "1em"]}
+        px={[".5em"]}
+      >
         {name}
       </StyledButton>
     </Link>

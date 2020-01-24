@@ -92,8 +92,8 @@ const Alert = ({ chore, user, setChore }) => (
       <option value="" disabled selected={user ? false : true}>
         Assign
       </option>
-      {Users.map(({ name }) => (
-        <option selected={user ? true : false} value={name}>
+      {Users.map(({ name }, i) => (
+        <option key={i} selected={user ? true : false} value={name}>
           {name}
         </option>
       ))}

@@ -39,6 +39,7 @@ export const QUERY_Bills = gql`
       id
       amount
       service
+      paidUsers
     }
   }
 `;

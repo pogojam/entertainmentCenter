@@ -23,8 +23,8 @@ input billInput {
   dueDate: Date
   pastDue: Boolean
   billPayed: Boolean
-  service: String
-  amount: Int
+  bill: String
+  amount: Int!
 }
 
 type Service {
