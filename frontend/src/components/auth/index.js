@@ -65,6 +65,7 @@ const useAuth = () => {
         setUser(user);
         user.getIdToken().then(tk => {
           localStorage.setItem("token", tk);
+          localStorage.setItem("uid", id);
         });
         getUser({
           variables: { id }
@@ -72,6 +73,7 @@ const useAuth = () => {
       } else {
         setUser(null);
         localStorage.removeItem("token");
+        localStorage.removeItem("uid");
       }
     });
   }, []);

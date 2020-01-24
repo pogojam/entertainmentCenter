@@ -84,16 +84,16 @@ const Subscribe = ({ stripe, User }) => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    try{
-    const { token } = await stripe.createToken();
-    console.log(token)
+    try {
+      const { token } = await stripe.createToken();
+      console.log(token);
       mutation({
         variables: {
           token: token.id
         }
       });
-    }catch(err){
-      console.log(err)
+    } catch (err) {
+      console.log(err);
     }
   };
 

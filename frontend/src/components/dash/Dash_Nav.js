@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useSpring, animated } from "react-spring";
 import {
@@ -9,6 +9,7 @@ import {
 } from "react-icons/md";
 import { Box, Flex } from "rebass";
 import { template } from "./Dash_Template";
+import { BurgerButton } from "./Dash_Buttons";
 
 const LinkContainer = styled(Box)`
   text-decoration: none;
@@ -30,6 +31,63 @@ const LinkContainer = styled(Box)`
   }
 `;
 
+const NavContainer = animated(styled(Flex)`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: ${template.containerPadding};
+  padding-right: 0;
+  min-width: 250px;
+  z-index: 1;
+
+  .Dash_Nav_BurgerButton {
+    pointer-events: none;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  @media screen and (min-width: 800px) {
+    transform: translateX(0%) !important ;
+  }
+
+  @media screen and (max-width: 800px) {
+    background-color: black;
+    padding-top: 4em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+
+    .wrapper {
+      background: transparent;
+    }
+
+    .Dash_Nav_BurgerButton {
+      padding: 1em;
+      pointer-events: all;
+      opacity: 1;
+    }
+  }
+  .wrapper {
+    background: ${template.bg};
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 1em;
+    border-radius: 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  overflow: hidden;
+`);
+
 const Link = ({ isActive, index, navigatePage, Icon, title }) => (
   <LinkContainer
     bg={isActive && "#090b0c69"}
@@ -42,44 +100,30 @@ const Link = ({ isActive, index, navigatePage, Icon, title }) => (
 );
 
 export const Nav = ({ Pages, activeIndex, setIndex }) => {
-  const inAmin = useSpring({
-    from: {
-      transform: "translateX(-100%)"
-    },
-    to: {
-      transform: "translateX(0%)"
-    }
-  });
+  const [isActive, setStatus] = useState(false);
 
-  const NavContainer = animated(styled(Flex)`
-    display: flex;
-    flex-direction: column;
-    padding: ${template.containerPadding};
-    padding-right: 0;
-    .wrapper {
-      background: ${template.bg};
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-      margin-bottom: 1em;
-      border-radius: 4px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    overflow: hidden;
-  `);
+  const inAmin = useSpring(
+    isActive
+      ? {
+          transform: "translateX(0%)"
+        }
+      : {
+          transform: "translateX(-75%)"
+        }
+  );
 
   return (
     <NavContainer
+      isActive={isActive}
       alignItems="center"
       justifyContent="spaced-evenly"
       flexBasis="25%"
       style={inAmin}
     >
+      <BurgerButton
+        onClick={() => setStatus(!isActive)}
+        className="Dash_Nav_BurgerButton"
+      />
       <Flex
         justifyContent="center"
         alignItems="center"

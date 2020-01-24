@@ -50,6 +50,7 @@ const auth = {
     if (id.length === 1) {
       const dbRole = await this.usersRef.doc(id[0]).get();
       const user = await dbRole.data();
+      console.log(user);
       output.push(user);
     }
     return output;
@@ -58,7 +59,7 @@ const auth = {
     const newUser = await this.usersRef.doc(userData.id).set(userData);
     return newUser;
   },
-  updateUser: async function(uid,userData) {
+  updateUser: async function(uid, userData) {
     const newUser = await this.usersRef.doc(uid).update(userData);
     return newUser;
   }
@@ -83,9 +84,13 @@ const utility = {
     });
     return output;
   },
-  changeBill: async function({ amount, service, token }) {
-    const newBill = await this.billsRef.doc(service).update({ amount: amount });
-    return newBill;
+  changeBill: async function({ amount, bill, token }) {
+    try {
+      const newBill = await this.billsRef.doc(bill).update({ amount: amount });
+      return newBill;
+    } catch (err) {
+      console.log(err);
+    }
   },
   addService: async function({ name, cycle, startDate }) {
     const newService = await this.serviceRef

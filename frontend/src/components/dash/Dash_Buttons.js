@@ -15,16 +15,22 @@ const MenuContainer = styled(Box)`
   }
 `;
 
+export const BurgerButton = ({ onClick, className }) => {
+  return (
+    <MenuContainer className={className} onClick={onClick}>
+      <div className="bar" />
+      <div className="bar" />
+      <div className="bar" />
+    </MenuContainer>
+  );
+};
+
 export const OptionsButton = ({ onClick }) => {
   const [isActive, toggle] = useState(false);
 
   return (
     <>
-      <MenuContainer onClick={() => toggle(!isActive)}>
-        <div className="bar" />
-        <div className="bar" />
-        <div className="bar" />
-      </MenuContainer>
+      <BurgerButton onClick={() => toggle(!isActive)} />
       <Box
         p=".5em"
         bg="black"

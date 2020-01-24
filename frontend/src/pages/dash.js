@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useLayoutEffect, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { Auth } from "../components/auth/index";
 import { Nav } from "../components/dash/Dash_Nav";
@@ -15,28 +15,24 @@ import {
   MdSettings
 } from "react-icons/md";
 import { PaymentForm } from "../components/forms/Form_Payment";
-
-const template = {
-  bg: "#5c548a2b",
-  secondary: "aqua",
-  containerPadding: "1.5em"
-};
+import { useSpring, animated } from "react-spring";
+import { Template } from "../components/template";
 
 const PageContainer = styled(Box)`
   display: grid;
-  grid-gap: ${template.containerPadding};
+  grid-gap: ${Template.containerPadding};
 
   .wrapper {
     border-radius: 4px;
-    background: ${template.bg};
+    background: ${Template.bg};
     padding: 1.5em;
   }
 
   input,
   select,
   textarea {
-    color: ${template.secondary};
-    border-color: ${template.secondary};
+    color: ${Template.secondary};
+    border-color: ${Template.secondary};
   }
 `;
 
@@ -55,7 +51,9 @@ const Utility_Page = {
         return (
           <>
             <Service.CreateService />
-            <Service.Slider Bills={BillCards} />
+            <Service.Slider admin>
+              {service => <BillCards admin service={service} />}
+            </Service.Slider>
           </>
         );
       default:
@@ -79,8 +77,8 @@ const Home_Page = {
       case "admin":
         return (
           <>
-            <Service.CreateService />
-            <Service.Slider Bills={BillCards} />
+            <Calendar />
+            <Chore.Preview />
           </>
         );
       default:
@@ -103,8 +101,7 @@ const Account_Page = {
       case "admin":
         return (
           <>
-            <Service.CreateService />
-            <Service.Slider Bills={BillCards} />
+            <PaymentForm.Subscribe />
           </>
         );
       default:
@@ -118,19 +115,18 @@ const Pages = [Utility_Page, Home_Page, Account_Page];
 export default function Dash(rest) {
   const [index, setIndex] = useState(0);
   const { User } = Auth.useContainer();
-
   const Page = Pages[index].content;
 
   return (
-    <Flex style={{ color: template.secondary }} height="100%">
+    <Flex style={{ color: Template.secondary }} height="100%">
       <Nav Pages={Pages} activeIndex={index} setIndex={setIndex} />
       <PageContainer
-        style={Pages[index].layoutStyle}
+        style={{ ...Pages[index].layoutStyle, tranistion: "width .3s linear" }}
         p="1.5em"
-        width="100%"
         height="100%"
+        width="100%"
       >
-        <Page role={User.role} />
+        <Page role={"admin"} />
       </PageContainer>
     </Flex>
   );
