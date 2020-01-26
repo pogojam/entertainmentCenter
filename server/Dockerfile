@@ -1,11 +1,10 @@
-FROM balenalib/asus-tinker-board-alpine-node
+FROM balenalib/asus-tinker-board-s-alpine-node:10-20181025
 WORKDIR /usr/src/app
 COPY package.json package.json
+RUN  apk update && apk add python g++ make
 RUN npm config set python /usr/bin/python2.7
-RUN apk add --no-cache --virtual .gyp \
-        python \
-    && npm install \
-    && apk del .gyp
+RUN npm cache clean -f && npm install -g n && n stable
+RUN npm install
 COPY . .
 
 CMD ["npm","start"]
