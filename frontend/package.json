@@ -36,7 +36,8 @@
     "unstated-next": "^1.1.0"
   },
   "scripts": {
-    "start": " node ./build/build.js && react-scripts  -r dotenv/config start ",
+    "start": "npm build & serve -s build -l 3000 ",
+    "dev": "node ./build/build.js && react-scripts  -r dotenv/config start ",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
