@@ -6,7 +6,7 @@ import io from "socket.io-client";
 import ss from "socket.io-stream";
 import fileReaderStream from "filereader-stream";
 
-const socket = io("http://localhost:5000");
+const socket = io(window.location.hostname ":5000");
 
 const uploadEvent = data => {
   const loadFile = file => {
@@ -111,7 +111,7 @@ export const VideoPlayer = ({ fullScreen, exit }) => {
         onClick={exit}
       />
       <Video controls>
-        <source src="http://localhost:5000/video" type="video/mp4" />;
+        <source src={window.location.hostname+":5000/video"} type="video/mp4" />;
       </Video>
     </Box>
   );

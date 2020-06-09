@@ -16,16 +16,18 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? token : ""
-    }
+      authorization: token ? token : "",
+    },
   };
 });
 
-const uploadLink = createUploadLink({ uri: "http://localhost:5000/graphql" });
+const uploadLink = createUploadLink({
+  uri: window.location.hostname + ":5000/graphql",
+});
 
 export const client = new ApolloClient({
   link: authLink.concat(uploadLink),
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 });
 
 function App() {
