@@ -7,11 +7,11 @@ import { GiVacuumCleaner, GiBroom } from "react-icons/gi";
 const Chores = [
   {
     icon: GiVacuumCleaner,
-    name: "Vaccum"
+    name: "Vaccum",
   },
   {
     icon: GiBroom,
-    name: "Sweep"
+    name: "Sweep",
   },
   {
     icon: ({ height = "1em", width = "1em" }) => (
@@ -22,8 +22,8 @@ const Chores = [
         color="white"
       />
     ),
-    name: "Dishes"
-  }
+    name: "Dishes",
+  },
 ];
 
 const Container = styled(Box)`
@@ -54,9 +54,11 @@ const Preview = () => {
 
   return (
     <Container className={"wrapper"}>
+      <p style={{ fontSize: ".5em", textAlign: "left" }}>
+        Drag and drop chores into calendar
+      </p>
       {Chores.map(({ name, icon: Icon }, i) => (
-        <PreviewCard key={i} draggable onDragStart={e => handleDrag(e, name)}>
-          {/* <h2>{name}</h2> */}
+        <PreviewCard key={i} draggable onDragStart={(e) => handleDrag(e, name)}>
           <Icon />
         </PreviewCard>
       ))}
@@ -66,7 +68,7 @@ const Preview = () => {
 
 // Temp user data
 
-const Users = [{ name: "Ryan" }];
+const Users = [{ name: "Ryan" }, { name: "Marvin" }, { name: "Vance" }];
 
 const AlertContainer = styled(Box)`
   padding: 1em;
@@ -82,24 +84,30 @@ const AlertContainer = styled(Box)`
   }
 `;
 
-const Alert = ({ chore, user, setChore }) => (
-  <AlertContainer>
-    {Chores.map(
-      ({ name, icon: Icon }, i) => name === chore && <Icon key={i} />
-    )}
-    <Box bg="white" my="1em" style={{ height: "1px", width: "100%" }} />
-    <select onChange={e => setChore(chore, e.target.value)} name="User">
-      <option value="" disabled selected={user ? false : true}>
-        Assign
-      </option>
-      {Users.map(({ name }, i) => (
-        <option key={i} selected={user ? true : false} value={name}>
-          {name}
+const Alert = ({ chore, user, id, complete, setChore }) => {
+  console.log(user, id);
+  return (
+    <AlertContainer>
+      {Chores.map(
+        ({ name, icon: Icon }, i) => name === chore && <Icon key={i} />
+      )}
+      <Box bg="white" my="1em" style={{ height: "1px", width: "100%" }} />
+      <select
+        onChange={(e) => setChore(chore, e.target.value, id, complete)}
+        name="User"
+      >
+        <option value="" disabled selected={user ? false : true}>
+          Assign
         </option>
-      ))}
-    </select>
-  </AlertContainer>
-);
+        {Users.map(({ name }, i) => (
+          <option key={i} selected={user === name ? true : false} value={name}>
+            {name}
+          </option>
+        ))}
+      </select>
+    </AlertContainer>
+  );
+};
 
 const NewChore = () => {
   return (
@@ -115,5 +123,5 @@ const NewChore = () => {
 
 export const Chore = {
   Preview,
-  Alert
+  Alert,
 };

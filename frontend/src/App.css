@@ -2,7 +2,7 @@
 
 * {
   font-family: "Montserrat", sans-serif;
-  color:aqua;
+  /* color:aqua; */
   /* font-family: "Lora", serif; */
 }
 
@@ -21,13 +21,11 @@ h3 {
   );
 }
 
-
 input {
   background-color: transparent;
   border: 1px solid black;
   margin: 0.3em;
 }
-
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,

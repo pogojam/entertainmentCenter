@@ -8,12 +8,15 @@ type Mutation {
 }
 
 input choreInput {
+  id: ID
+  complete: Boolean
   chore: String
   user: String
   date: DATE
 }
 
 type Chore {
+  id: ID
   chore: String
   user: String
   date: DATE

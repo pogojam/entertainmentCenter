@@ -7,15 +7,8 @@ import { BillCards } from "../components/dash/Dash_Bill";
 import { Calendar } from "../components/dash/Dash_Calendar";
 import { Box, Flex } from "rebass";
 import { Chore } from "../components/dash/Dash_Chore";
-import {
-  MdEventAvailable,
-  MdPerson,
-  MdAccountBalance,
-  MdHome,
-  MdSettings
-} from "react-icons/md";
+import { MdEventAvailable, MdHome, MdSettings } from "react-icons/md";
 import { PaymentForm } from "../components/forms/Form_Payment";
-import { useSpring, animated } from "react-spring";
 import { Template } from "../components/template";
 
 const PageContainer = styled(Box)`
@@ -26,6 +19,8 @@ const PageContainer = styled(Box)`
     border-radius: 4px;
     background: ${Template.bg};
     padding: 1.5em;
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   input,
@@ -43,23 +38,31 @@ const Utility_Page = {
     switch (role) {
       case "user":
         return (
-          <Service.Slider>
-            {service => <BillCards service={service} />}
-          </Service.Slider>
+          <Service.Fetch>
+            {(data) => (
+              <Service.Slider data={data}>
+                {(service) => <BillCards service={service} />}
+              </Service.Slider>
+            )}
+          </Service.Fetch>
         );
       case "admin":
         return (
-          <>
-            <Service.CreateService />
-            <Service.Slider admin>
-              {service => <BillCards admin service={service} />}
-            </Service.Slider>
-          </>
+          <Service.Fetch>
+            {(data, refetch) => (
+              <>
+                <Service.CreateService refetch={refetch} />
+                <Service.Slider refetch={refetch} admin data={data}>
+                  {(service) => <BillCards admin service={service} />}
+                </Service.Slider>
+              </>
+            )}
+          </Service.Fetch>
         );
       default:
         return <Box />;
     }
-  }
+  },
 };
 
 const Home_Page = {
@@ -84,7 +87,7 @@ const Home_Page = {
       default:
         return <Box />;
     }
-  }
+  },
 };
 
 const Account_Page = {
@@ -107,7 +110,7 @@ const Account_Page = {
       default:
         return <Box />;
     }
-  }
+  },
 };
 
 const Pages = [Utility_Page, Home_Page, Account_Page];

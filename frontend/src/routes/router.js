@@ -4,7 +4,7 @@ import {
   BrowserRouter as Router,
   Route,
   Redirect,
-  Switch
+  Switch,
 } from "react-router-dom";
 import { Dash, Movies, Music, Storage, Login } from "../pages";
 import build from "../pages/build.json";
@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
         width: "100%",
         height: "100%",
         paddingTop: "5em",
-        maxHeight: "calc(100vh - 5em)"
+        maxHeight: "calc(100vh - 5em)",
       }}
     >
       {children}
@@ -42,10 +42,12 @@ const PrivateRoutes = ({ User, children }) => {
   );
 };
 
-const AppRouter = params => {
+const AppRouter = (params) => {
   const { User, handleLogout } = Auth.useContainer();
-
-  const withUser = Component => props => <Component User={User} {...props} />;
+  console.log(User);
+  const withUser = (Component) => (props) => (
+    <Component User={User} {...props} />
+  );
 
   return (
     <Router>

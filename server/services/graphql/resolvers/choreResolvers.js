@@ -6,23 +6,23 @@ module.exports = {
     getChores: async (parent, { start, end }, { auth, database }) => {
       const chores = await database.chore.getChores({
         start,
-        end
+        end,
       });
       return chores;
-    }
+    },
   },
   Mutation: {
     addChore: async (parent, { input }, { auth, database }) => {
-      const { chore, date, user } = input;
+      const { chore, date, user, id, complete } = input;
       const newChore = await database.chore.setChore({
         chore,
         date,
-        user
+        user,
+        id,
+        complete,
       });
 
-      console.log(chore);
-
       return newChore;
-    }
-  }
+    },
+  },
 };

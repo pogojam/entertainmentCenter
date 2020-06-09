@@ -8,15 +8,15 @@ module.exports = {
     getUser: async (_, { id }, { database }) => {
       const user = await database.auth.getUser(id);
       return user;
-    }
+    },
   },
   Mutation: {
     newUser: async (parent, { input }, { auth, database }) => {
-      const { code, id } = input;
+      // const { code, id } = input;
       const user = await database.auth.addUser({
         id,
         role: "user",
-        autoPay: false
+        autoPay: false,
       });
       // if (code !== MasterCode) {
       //   throw new AuthenticationError("You must have a valid code to signup");
@@ -26,21 +26,21 @@ module.exports = {
     createSubscription: async (
       parent,
       { token },
-      { auth, stripe,user, database }
+      { auth, stripe, user, database }
     ) => {
-      const {uid }= user
+      const { uid } = user;
       try {
         const customer = await stripe.customers.create({
           source: token,
-          email: auth.email
+          email: auth.email,
         });
-        database.auth.updateUser(uid,{
+        database.auth.updateUser(uid, {
           autoPay: true,
-          customerId: customer.id
+          customerId: customer.id,
         });
       } catch (err) {
         console.log(err);
       }
-    }
-  }
+    },
+  },
 };

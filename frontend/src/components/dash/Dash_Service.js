@@ -1,29 +1,53 @@
+import Icon from "../icon";
 import React, { useState, Children } from "react";
-
+import Loader from "../loader";
+import Menu from "../menu";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { Heading, Flex } from "rebass";
 import { OptionsButton } from "./Dash_Buttons";
 import {
   QUERY_Services,
   MUTATION_removeService,
-  MUTATION_NewService
+  MUTATION_NewService,
 } from "./Dash_Graphql";
 import { Template } from "../template";
+import styled from "styled-components";
 
-const AddServiceForm = () => {
+const ServiceContainer = styled.div`
+  input::-webkit-calendar-picker-indicator {
+    background-color: aqua;
+  }
+  position: relative;
+  .Service_Heading {
+    padding: 10px;
+    width: 100%;
+  }
+  .Menu_Container {
+    height: 100%;
+  }
+  .Slide {
+    background-color: "black";
+  }
+  form {
+    padding: 1em;
+    border-radius: 3px;
+  }
+`;
+
+const AddServiceForm = ({ refetch }) => {
   const [cycle, setCycle] = useState(null);
   const [startDate, setDate] = useState(null);
   const [name, setName] = useState(null);
   const [addService] = useMutation(MUTATION_NewService);
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addService({
+    await addService({
       variables: {
-        input: { cycle: parseInt(cycle, 10), startDate, name }
+        input: { cycle: parseInt(cycle, 10), startDate, name },
       },
-      refetchQueries: ["getServices"]
     });
+    await refetch();
     reset();
   };
 
@@ -40,69 +64,135 @@ const AddServiceForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", maxWidth: "400px" }}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit,minmax(40px,1fr))",
+        alignItems: "center",
+        width: "50%",
+        height: "100%",
+      }}
     >
-      Cycle Every
-      <input onChange={e => handleChange(e, setCycle)} type="number" />
-      Start Date
-      <input type="date" onChange={e => handleChange(e, setDate)} />
-      Service
-      <input type="text" onChange={e => handleChange(e, setName)} />
-      <input type="submit" />
+      <span>
+        Cycle Every
+        <input
+          style={{ textAlign: "center" }}
+          placeholder="In days"
+          onChange={(e) => handleChange(e, setCycle)}
+          type="number"
+        />
+      </span>
+      <span>
+        Start Date
+        <input type="date" onChange={(e) => handleChange(e, setDate)} />
+      </span>
+      <span>
+        Service
+        <input
+          type="text"
+          style={{ textAlign: "center" }}
+          placeholder="Service Name"
+          onChange={(e) => handleChange(e, setName)}
+        />
+      </span>
+      <input
+        style={{ position: "absolute", right: "15px", bottom: "15px" }}
+        type="submit"
+      />
     </form>
   );
 };
 
-const CreateService = () => (
-  <Flex
+const CreateService = ({ refetch }) => (
+  <ServiceContainer
     className="wrapper"
-    flexDirection="column"
+    style={{
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
     alignItems="center"
     justifyContent="space-around"
     p={Template.containerPadding}
   >
-    <Heading>New Utility Service</Heading>
-    <AddServiceForm />
-  </Flex>
+    <Heading
+      style={{ textAlign: "left" }}
+      className="Service_Heading"
+      fontSize=".8em"
+    >
+      New Utility Service
+    </Heading>
+    <AddServiceForm refetch={refetch} />
+  </ServiceContainer>
 );
+const ServiceMenu = ({ refetch, name }) => {
+  return (
+    <div>
+      <Icon type="exit" />
+    </div>
+  );
+};
 
-const Slider = ({ children, admin }) => {
-  const { loading, error, data } = useQuery(QUERY_Services);
+const Fetch = ({ children }) => {
+  const { loading, error, data, refetch } = useQuery(QUERY_Services);
+  console.log(data);
+  return !loading ? children(data, refetch) : <Loader />;
+};
+
+const Slider = ({ refetch, children, admin, data }) => {
   const [mutation] = useMutation(MUTATION_removeService);
 
-  const removeService = name => {
+  const removeService = (name) => {
     mutation({
       variables: {
         input: {
-          name
-        }
+          name,
+        },
       },
-      refetchQueries: ["getServices"]
+      refetchQueries: ["getServices"],
     });
   };
-
-  return loading
-    ? null
-    : data.getServices.map(({ name }, i) => (
+  if (!data) return;
+  return data.getServices.map(({ name }, i) => (
+    <ServiceContainer
+      key={i}
+      className="wrapper"
+      flexDirection="column"
+      style={{ overflow: "hidden", position: "relative" }}
+      width="100%"
+    >
+      <Menu
+        side="right"
+        drawerItem={() => <ServiceMenu name={name} refetch={refetch} />}
+      >
+        <Flex className="Service_Heading">
+          <Heading fontSize=".8em">{name}</Heading>
+        </Flex>
         <Flex
-          key={i}
-          className="wrapper"
-          flexDirection="column"
-          style={{ overflow: "hidden", position: "relative" }}
-          width="100%"
+          p=".3em"
+          style={{
+            alignItems: "center",
+            height: "100%",
+            flexBasis: "100%",
+            fontSize: "1.24vw",
+          }}
         >
-          <Flex>
-            <Heading fontSize=".8em">{name}</Heading>
-            {admin && <OptionsButton onClick={() => removeService(name)} />}
-          </Flex>
-          <Flex p=".3em" style={{ flexBasis: "100%" }}>
+          <Flex
+            style={{
+              width: "100%",
+            }}
+          >
             {children && children(name)}
           </Flex>
         </Flex>
-      ));
+      </Menu>
+    </ServiceContainer>
+  ));
 };
 
 export const Service = {
   CreateService,
-  Slider
+  Slider,
+  Fetch,
 };

@@ -8,37 +8,55 @@ const { database, auth } = require("./firebase");
 
 const adjustDate = (dueDate, cycle, today) => {
   if (dueDate < today) {
-    return adjustDate(dueDate.add(cycle, "days"));
+    return adjustDate(dueDate.add(cycle, "days"), cycle, today);
   } else {
     return dueDate;
   }
 };
 
 cron.schedule("1 * * * * *", async () => {
+  console.log("fire cron");
   const today = new Date();
   const services = await database.collection("service").get();
 
-  services.docs.map(doc => {
+  services.docs.map((doc) => {
     const { cycle, name, startDate } = doc.data();
-    const dueDate = adjustDate(moment(startDate), cycle, today).format("LL");
-
+    const dueDate = adjustDate(moment(startDate), cycle, today).toDate();
+    console.log(dueDate);
     database
       .collection("bills")
       .where("dueDate", ">", today)
       .where("service", "==", name)
       .get()
-      .then(billsSnapshot => {
+      .then((billsSnapshot) => {
         if (billsSnapshot.empty) {
+          console.log("Empty");
           database
             .collection("bills")
-            .doc(name + "_" + dueDate)
+            .doc(name + "_" + moment(dueDate).format("LL"))
             .set({
               dueDate,
               service: name,
               paidUsers: [],
               pastDue: false,
-              billPaid: false
+              billPaid: false,
             });
+        }
+      });
+
+    database
+      .collection("bills")
+      .where("dueDate", "<", today)
+      .where("pastDue", "==", false)
+      .where("service", "==", name)
+      .get()
+      .then((billsSnapshot) => {
+        if (!billsSnapshot.empty) {
+          const batch = database.batch();
+          billsSnapshot.forEach((bill) => {
+            batch.update(bill.ref, { pastDue: true });
+          });
+          batch.commit();
         }
       });
   });

@@ -25,12 +25,12 @@ const handleLogin = ({ pass, email }) => {
   auth.signInWithEmailAndPassword(email, pass);
 };
 
-const creatNewUser = mutate => async ({
+const creatNewUser = (mutate) => async ({
   pass,
   email,
   firstName,
   lastName,
-  code
+  code,
 }) =>
   auth.createUserWithEmailAndPassword(email, pass).then(({ user }) => {
     const { uid } = user;
@@ -40,10 +40,10 @@ const creatNewUser = mutate => async ({
           id: uid,
           firstName,
           code,
-          email
-        }
-      }
-    }).catch(err => console.log(err));
+          email,
+        },
+      },
+    }).catch((err) => console.log(err));
   });
 
 const handleLogout = () => {
@@ -54,21 +54,21 @@ const useAuth = () => {
   const [User, setUser] = useState(null);
   const [addUser] = useMutation(MUTATION_newUser, { client: client });
   const [getUser, { loading, data }] = useLazyQuery(QUERY_getUser, {
-    client: client
+    client: client,
   });
   const handleNewuser = creatNewUser(addUser);
 
   useEffect(() => {
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged((user) => {
       if (user) {
         const id = [user.uid];
         setUser(user);
-        user.getIdToken().then(tk => {
+        user.getIdToken().then((tk) => {
           localStorage.setItem("token", tk);
           localStorage.setItem("uid", id);
         });
         getUser({
-          variables: { id }
+          variables: { id },
         });
       } else {
         setUser(null);
@@ -76,16 +76,19 @@ const useAuth = () => {
         localStorage.removeItem("uid");
       }
     });
+    return () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("uid");
+    };
   }, []);
 
   useEffect(() => {
     if (data) {
       const { getUser: user } = data;
 
-      user && setUser(prev => ({ ...prev, ...user[0] }));
+      user && setUser((prev) => ({ ...prev, ...user[0] }));
     }
   }, [data]);
-
   return { User, handleNewuser, handleLogin, handleLogout };
 };
 

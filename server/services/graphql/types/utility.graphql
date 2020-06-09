@@ -4,6 +4,7 @@ type Mutation {
   newService(input: serviceInput): Service
   removeService(input: serviceInput): Service
   changeBill(input: billInput): Bill
+  removeBill(input: billInput): Bill
 }
 
 type Query {
@@ -24,7 +25,7 @@ input billInput {
   pastDue: Boolean
   billPayed: Boolean
   bill: String
-  amount: Int!
+  amount: Int
 }
 
 type Service {

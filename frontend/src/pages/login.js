@@ -14,8 +14,7 @@ const InputBox = styled(Box)`
 
 const Login = ({ initalState = true, location }) => {
   const [isLogin, setFormState] = useState(initalState);
-  const { user, handleNewuser, handleLogin } = Auth.useContainer();
-
+  const { User, handleNewuser, handleLogin } = Auth.useContainer();
   const [err, setErr] = useState(null);
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -23,11 +22,11 @@ const Login = ({ initalState = true, location }) => {
   const [lastName, setLast] = useState("");
   const [code, setCode] = useState("");
 
-  return user ? (
+  return User ? (
     <Redirect to="/Dash" />
   ) : (
     <Flex
-      onSubmit={async e => {
+      onSubmit={async (e) => {
         e.preventDefault();
         try {
           isLogin
@@ -42,14 +41,20 @@ const Login = ({ initalState = true, location }) => {
       alignItems="center"
       style={{ height: "100%", width: "100%" }}
     >
-      <Box minWidth="40%" bg="#22ce99" as="form" p="2em">
+      <Box
+        minWidth="40%"
+        style={{ maxWidth: "400px" }}
+        bg="#22ce99"
+        as="form"
+        p="2em"
+      >
         <Heading>{isLogin ? "login" : "Signup"}</Heading>
         <InputBox
           style={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-evenly",
-            height: "100%"
+            height: "100%",
           }}
         >
           <Input

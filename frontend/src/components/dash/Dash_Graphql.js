@@ -31,6 +31,13 @@ export const MUTATION_changeBill = gql`
     }
   }
 `;
+export const MUTATION_removeBill = gql`
+  mutation removeBill($input: billInput) {
+    removeBill(input: $input) {
+      id
+    }
+  }
+`;
 
 export const QUERY_Bills = gql`
   query getBills($service: String) {
@@ -40,6 +47,7 @@ export const QUERY_Bills = gql`
       amount
       service
       paidUsers
+      pastDue
     }
   }
 `;

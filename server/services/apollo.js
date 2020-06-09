@@ -3,7 +3,7 @@ const path = require("path");
 const {
   mergeTypes,
   mergeResolvers,
-  fileLoader
+  fileLoader,
 } = require("merge-graphql-schemas");
 const { auth } = require("./firebase");
 const { database } = require("./database");
@@ -18,7 +18,7 @@ const context = async ({ req }) => {
     const { role } = await database.auth.getUser([uid]);
     user = {
       uid,
-      role
+      role,
     };
   }
   return { database, auth, user, stripe };

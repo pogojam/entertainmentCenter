@@ -27,6 +27,7 @@ const MUTATION_addChore = gql`
 const QUERY_chores = gql`
   query getChores($start: DATE, $end: DATE) {
     getChores(start: $start, end: $end) {
+      id
       chore
       date
       user
@@ -38,7 +39,7 @@ const QUERY_chores = gql`
 const outlook = {
   week: 7,
   month: 30,
-  year: 365
+  year: 365,
 };
 
 const DayContainer = styled(Box)`
@@ -94,10 +95,7 @@ const Menu = ({ date, offset, setOffset }) => {
 
   const buttonRef = useRef(null);
   const containerRef = useRef(null);
-  const dateHeader = date
-    .clone()
-    .format("YYYY-MM-DD")
-    .toString();
+  const dateHeader = date.clone().format("YYYY-MM-DD").toString();
 
   const calcOffset = () => {
     const containerHeight = containerRef.current.getBoundingClientRect().height;
@@ -105,7 +103,7 @@ const Menu = ({ date, offset, setOffset }) => {
     const padding = 10;
     setOffset({
       menu: `${buttonHeight + padding}px`,
-      content: buttonHeight + padding + `px`
+      content: buttonHeight + padding + `px`,
     });
   };
 
@@ -136,15 +134,16 @@ const DayCard = ({ date, index, data }) => {
   const [offset, setOffset] = useState({ menu: "-85%", content: "0px" });
 
   useEffect(() => {
+    console.log(data);
     setChores(data);
   }, [data]);
 
-  const handleDragOver = e => {
+  const handleDragOver = (e) => {
     e.preventDefault();
   };
-  const handleDrop = e => {
+  const handleDrop = (e) => {
     const newChoreName = e.dataTransfer.getData("id");
-    setChores(oldChores => {
+    setChores((oldChores) => {
       // if chore is not in chores list add new chore
       const alreadyChore = oldChores.reduce((acc, { chore }) => {
         if (chore === newChoreName) return (acc = true);
@@ -155,16 +154,18 @@ const DayCard = ({ date, index, data }) => {
     });
   };
 
-  const addChore = (chore, user) => {
-    console.log(chore);
+  const addChore = (chore, user, id = null, complete = null) => {
+    console.log(id);
     mutateChores({
       variables: {
         input: {
+          id,
           chore,
           user,
-          date
-        }
-      }
+          date,
+          complete,
+        },
+      },
     });
   };
 
@@ -188,8 +189,8 @@ export const Calendar = ({ outlook = 7 }) => {
   const { data, loading, error } = useQuery(QUERY_chores, {
     variables: {
       start: Days.current[0],
-      end: Days.current[Days.current.length - 1]
-    }
+      end: Days.current[Days.current.length - 1],
+    },
   });
 
   return (
@@ -206,7 +207,7 @@ export const Calendar = ({ outlook = 7 }) => {
         const dayData = [];
         if (data.getChores) {
           data.getChores.forEach(
-            chore =>
+            (chore) =>
               moment(day).isSame(chore.date, "day") && dayData.push(chore)
           );
         }

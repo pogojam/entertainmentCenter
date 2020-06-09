@@ -11,7 +11,7 @@ import {
   config,
   useTrail,
   animated,
-  interpolate
+  interpolate,
 } from "react-spring";
 import styled from "styled-components";
 
@@ -42,7 +42,7 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
 
   const [props, set] = useSpring(() => ({
     xys: [0, 0, 1],
-    config: { mass: 5, tension: 350, friction: 40 }
+    config: { mass: 5, tension: 350, friction: 40 },
   }));
 
   const calc = (x, y) => {
@@ -50,7 +50,7 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
     return [
       -(y - con.top - con.height / 2) / 20,
       (x - con.left - con.width / 2) / 20,
-      1.1
+      1.1,
     ];
   };
 
@@ -58,7 +58,7 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
     <Container
       borderRadius="3px"
       ref={containerRef}
-      onClick={e => {
+      onClick={(e) => {
         handleClick(data);
       }}
       onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
@@ -72,7 +72,7 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
         backgroundSize: "cover",
         height: "100%",
         width: "15em",
-        borderRadius: "15px"
+        borderRadius: "15px",
       }}
     >
       {/* <Image
@@ -95,7 +95,7 @@ const MainPreview = ({
   Poster,
   Awards,
   Title,
-  togglePlayer
+  togglePlayer,
 }) => {
   const containerRef = useRef(null);
 
@@ -113,7 +113,7 @@ const MainPreview = ({
 
   const playerOptions = {
     fullScreen: true,
-    exit: () => togglePlayer(false)
+    exit: () => togglePlayer(false),
   };
 
   const transition = {
@@ -123,7 +123,7 @@ const MainPreview = ({
     },
     from: { opacity: 0, transform: "translateX(-30%) translateY(0%)" },
     enter: { opacity: 1, transform: "translateX(0%) translateY(0%) " },
-    leave: { opacity: 0, transform: "translateX(30%) translateY(0%)" }
+    leave: { opacity: 0, transform: "translateX(30%) translateY(0%)" },
   };
   const animation = useTransition(Title, null, transition);
 
@@ -137,7 +137,7 @@ const MainPreview = ({
         height: "100%",
         top: 0,
         right: 0,
-        position: "fixed"
+        position: "fixed",
         // background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
@@ -156,7 +156,7 @@ const MainPreview = ({
               alignItems: "center",
               justifyContent: "space-evenly",
               zIndex: 0,
-              ...props
+              ...props,
             }}
           >
             <AnimationCard
@@ -168,7 +168,7 @@ const MainPreview = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                ...props
+                ...props,
               }}
             >
               <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
@@ -219,14 +219,10 @@ const MainPreview = ({
 };
 
 const Slider = ({ handleClick, category, Slide }) => {
-  const {
-    loading,
-    error,
-    data: { getMovies: data }
-  } = useQuery(queryMovies, {
-    variables: { input: category }
+  const { loading, error, data } = useQuery(queryMovies, {
+    variables: { input: category },
   });
-
+  const movieData = data ? data.getMovies : null;
   const wasAbove = useRef(false);
 
   const [ref, entry] = useObserver({
@@ -244,13 +240,13 @@ const Slider = ({ handleClick, category, Slide }) => {
       0.9,
       0.95,
       0.98,
-      1.0
-    ]
+      1.0,
+    ],
   });
 
   const [scrollAnim, setAnim] = useSpring(() => ({
     opc: [1],
-    sp: [0, 0]
+    sp: [0, 0],
   }));
 
   const calcSpin = (entry, deg) => {
@@ -280,14 +276,14 @@ const Slider = ({ handleClick, category, Slide }) => {
 
   return (
     <>
-      {!loading && data.length > 0 && (
+      {!loading && movieData.length > 0 && (
         <animated.div
           style={{
-            opacity: scrollAnim.opc.interpolate(e => e),
+            opacity: scrollAnim.opc.interpolate((e) => e),
             transformOrigin: "center center",
             transform: scrollAnim.sp.interpolate(
               (e, s) => `rotate(${e}deg) scale(${s}) `
-            )
+            ),
           }}
         >
           <Flex
@@ -296,7 +292,7 @@ const Slider = ({ handleClick, category, Slide }) => {
             p="1.5em"
             style={{
               height: "17em",
-              position: "relative"
+              position: "relative",
             }}
             width="100%"
           >
@@ -308,7 +304,7 @@ const Slider = ({ handleClick, category, Slide }) => {
             >
               {category}
             </Heading>
-            {data.map((e, i) => (
+            {movieData.map((e, i) => (
               <Slide key={i} handleClick={handleClick} {...e} />
             ))}
           </Flex>
@@ -354,7 +350,7 @@ export default function Movies() {
           position: "fixed",
           right: "0",
           bottom: "-3px",
-          zIndex: 4
+          zIndex: 4,
         }}
       >
         {" "}

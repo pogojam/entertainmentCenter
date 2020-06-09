@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 COPY package.json package.json
 RUN  apk update && apk add python g++ make
 RUN npm config set python /usr/bin/python2.7
-RUN npm cache clean -f && npm install -g n && n stable
+# RUN npm cache clean -f && npm install -g n && n stable
 RUN npm install
 COPY . .
 

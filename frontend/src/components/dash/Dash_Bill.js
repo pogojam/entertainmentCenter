@@ -1,43 +1,77 @@
+import moment from "moment";
+import Menu from "../menu";
 import React, { useState, useEffect } from "react";
+import Icon from "../icon";
 import { useSpring, animated } from "react-spring";
-import { QUERY_Bills, MUTATION_changeBill } from "./Dash_Graphql";
+import {
+  QUERY_Bills,
+  MUTATION_changeBill,
+  MUTATION_removeBill,
+} from "./Dash_Graphql";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { Heading, Flex, Box } from "rebass";
 import styled from "styled-components";
+import { DiNginx } from "react-icons/di";
 
 const TabContaienr = styled.div`
   position: absolute;
   background-color: red;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -20px;
+  top: 0;
+  left: 0%;
   color: black;
   font-size: 0.5em;
   padding: 0.2em;
-  border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+`;
+
+const BillContainer = styled(Box)`
+  display: flex;
+  background: aqua;
+  border-radius: 4px;
+  color: black;
+
+  input {
+    color: black !important;
+  }
 `;
 
 const PastDueTab = () => <TabContaienr>PastDue</TabContaienr>;
 
+const BillCardMenu = ({ removeBill }) => {
+  return (
+    <Flex
+      alignItems="center"
+      justifyContent="space-around"
+      flexDirection="column"
+      style={{ height: "100%" }}
+    >
+      <Icon type="exit" onClick={() => removeBill()} />
+      <div style={{ height: "1px", background: "white", width: "100%" }} />
+      <Icon type="mail" />
+    </Flex>
+  );
+};
 export const BillCard = ({
   admin,
   refetch,
   service,
   dueDate,
   amount,
-  paidUsers
+  paidUsers,
+  pastDue,
 }) => {
+  const date = moment.unix(dueDate._seconds).format("LL");
   const [newAmount, setAmount] = useState();
   const [setBill] = useMutation(MUTATION_changeBill);
-  const [isPastDue, setDue] = useState(true);
-
+  const [removeBill] = useMutation(MUTATION_removeBill);
+  const [isPastDue, setDue] = useState(false);
+  const billID = service + "_" + date;
   useEffect(() => {
     const uid = localStorage.getItem("uid");
-    if (paidUsers.includes(uid)) {
-      setDue(false);
+    if (!paidUsers.includes(uid) && pastDue === true) {
+      setDue(true);
     }
-  }, []);
+  }, [isPastDue]);
 
   const changeBill = (e, id) => {
     e.preventDefault();
@@ -45,51 +79,77 @@ export const BillCard = ({
       variables: {
         input: {
           amount: Number(newAmount),
-          bill: id
-        }
-      }
+          bill: id,
+        },
+      },
     }).then(refetch);
   };
-
   return (
-    <Flex
-      m=".2em"
-      ml="1vw"
-      alignItems="center"
-      justifyContent="center"
-      flexDirection="column"
+    <Menu
+      side="bottom"
       style={{
+        margin: ".2em",
+        marginRight: "1vw",
         boxShadow: "rgba(0, 0, 0, 0.59) 0px 3px 9px 1px",
-        position: "relative"
+        position: "relative",
+        maxWidth: "10%",
+        minWidth: "70px",
+        height: "unset",
       }}
-      maxWidth="10%"
-      minWidth="70px"
-      as="form"
-      onSubmit={e => changeBill(e, service + "_" + dueDate)}
-    >
-      <Heading fontSize=".8em">{dueDate}</Heading>
-      {amount | !admin ? (
-        "$" + (!amount ? 0 : amount)
-      ) : (
-        <>
-          <input
-            onChange={e => setAmount(e.target.value)}
-            style={{ maxWidth: "80%" }}
-            type="number"
-          />
-          <input type="submit" />
-        </>
+      drawerItem={() => (
+        <BillCardMenu
+          removeBill={() =>
+            removeBill({
+              variables: {
+                input: {
+                  id: billID,
+                },
+              },
+            }).then(refetch)
+          }
+        />
       )}
-      {isPastDue && <PastDueTab />}
-    </Flex>
+    >
+      <BillContainer
+        padding=".8em"
+        alignItems="center"
+        justifyContent="center"
+        flexDirection="column"
+        as="form"
+        style={{ height: "100%" }}
+        onSubmit={(e) => changeBill(e, billID)}
+      >
+        <Box color={"black"} fontSize=".5em">
+          <Heading style={{ fontSize: "1.4em" }}>Due</Heading>
+          <span>{date}</span>
+        </Box>
+        {amount | !admin ? (
+          "$" + (!amount ? 0 : amount)
+        ) : (
+          <>
+            <Heading style={{ fontSize: "14px" }}>Set Amount</Heading>
+            <input
+              onChange={(e) => setAmount(e.target.value)}
+              style={{
+                maxWidth: "80%",
+                borderColor: "black",
+              }}
+              type="number"
+            />
+            <input type="submit" />
+          </>
+        )}
+        {isPastDue && <PastDueTab />}
+      </BillContainer>
+    </Menu>
   );
 };
 
 export const BillCards = ({ service, admin }) => {
   const { loading, error, data, refetch } = useQuery(QUERY_Bills, {
     variables: {
-      service
-    }
+      service,
+    },
   });
 
   return loading
