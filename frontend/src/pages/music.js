@@ -20,7 +20,6 @@ const handleStream = (cb) => {
 
 export default function Music() {
   const [videoStream, setStream] = useState();
-  console.log(videoStream);
 
   return (
     <Box>
