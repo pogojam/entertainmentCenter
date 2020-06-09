@@ -174,7 +174,6 @@ const Slider = ({ refetch, children, admin, data }) => {
           style={{
             alignItems: "center",
             height: "100%",
-            flexBasis: "100%",
             fontSize: "1.24vw",
           }}
         >
