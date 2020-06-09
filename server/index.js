@@ -22,7 +22,7 @@ app.use("/music", musicRoutes);
 app.use("/search", searchRouter);
 apolloServer.applyMiddleware({ app });
 
-io.on("connect", socket => {
+io.on("connect", (socket) => {
   const stream = ss(socket);
   connections.push(socket.id);
   videoSockets(socket, stream, database);
