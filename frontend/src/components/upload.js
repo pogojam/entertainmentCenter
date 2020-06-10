@@ -6,13 +6,13 @@ import io from "socket.io-client";
 import ss from "socket.io-stream";
 import fileReaderStream from "filereader-stream";
 
-const socket = io(window.location.hostname ":5000");
+const socket = io(window.location.hostname + ":5000");
 
-const uploadEvent = data => {
-  const loadFile = file => {
+const uploadEvent = (data) => {
+  const loadFile = (file) => {
     const fReader = new FileReader();
 
-    fReader.onload = event => {
+    fReader.onload = (event) => {
       socket.emit("Upload", { name: file.name, data: event.target.result });
     };
     fReader.readAsArrayBuffer(file);
@@ -29,10 +29,10 @@ export const uploadFile = async (file, dir, refetch) => {
   const fileInfo = {
     name: file.name,
     dir: dir,
-    size: file.size
+    size: file.size,
   };
 
-  socket.on("uploadEnd", e => {
+  socket.on("uploadEnd", (e) => {
     refetch();
   });
   ss(socket).emit("fileUpload", Stream, fileInfo);
@@ -50,21 +50,21 @@ export const Upload = ({ toggle }) => {
       width="100%"
       alignItems="center"
       justifyContent="center"
-      onClick={e => toggle(false)}
+      onClick={(e) => toggle(false)}
     >
       <Box
         style={{
           borderRadius: "6px",
           padding: "8em",
-          backgroundColor: "whitesmoke"
+          backgroundColor: "whitesmoke",
         }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <input
           type="file"
           accept="video/*"
           multiple
-          onChange={e => setFile(e.target.files)}
+          onChange={(e) => setFile(e.target.files)}
         />
         {fileData && (
           <Button onClick={() => uploadEvent(fileData) & toggle(false)}>
@@ -95,7 +95,7 @@ export const VideoPlayer = ({ fullScreen, exit }) => {
 
     ${fullScreen && fullsceenStyle}
   `;
-
+  const videoSource = window.location.hostname + ":5000/video";
   return (
     <Box onMouseMove={handleMove}>
       <TiArrowLeftThick
@@ -106,12 +106,12 @@ export const VideoPlayer = ({ fullScreen, exit }) => {
           position: "fixed",
           top: 0,
           left: 0,
-          padding: "3em"
+          padding: "3em",
         }}
         onClick={exit}
       />
       <Video controls>
-        <source src={window.location.hostname+":5000/video"} type="video/mp4" />;
+        <source src={videoSource} type="video/mp4" />;
       </Video>
     </Box>
   );
