@@ -11,6 +11,9 @@ h2,
 h3 {
   font-family: "Oswald", sans-serif;
 }
+html {
+  background-color: black;
+}
 .App {
   text-align: center;
   height: 100vh;

@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "@apollo/react-hooks";
 import genres from "../library/genres.json";
 import { useObserver } from "../util";
 import gql from "graphql-tag";
+import { useScroll, useGesture, useWheel } from "react-use-gesture";
 import {
   useSpring,
   useTransition,
@@ -15,7 +16,10 @@ import {
 } from "react-spring";
 import styled from "styled-components";
 
-const AnimationBox = animated(Box);
+const AnimationBox = animated(styled(Box)`
+  @media (max-width: 900px) {
+  }
+`);
 const AnimationCard = animated(Card);
 
 const queryMovies = gql`
@@ -88,6 +92,25 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
   );
 });
 
+const MainPreviewStyles = animated(styled.div`
+  text-align: center;
+  display: flex;
+  width: 40%;
+  height: 100%;
+  top: 0;
+  right: 0;
+
+  @media (max-width: 600px) {
+    background-color: black;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40vh;
+    transform: translate(0, -100);
+    backdrop-filter: blur(5px);
+    background-color: #79757580;
+  }
+`);
 const MainPreview = ({
   img,
   Year,
@@ -96,9 +119,11 @@ const MainPreview = ({
   Awards,
   Title,
   togglePlayer,
+  show,
 }) => {
+  const [showDrawer, setDrawer] = useState(false);
+  const isMobile = window.innerWidth < 600;
   const containerRef = useRef(null);
-
   const ImageContainer = animated(styled(Image)`
     &::before {
       content: "";
@@ -118,7 +143,7 @@ const MainPreview = ({
 
   const transition = {
     config: (item, type) => {
-      if (type === "leave") return config.molasses;
+      if (type === "leave") return { tension: 500, friction: 400 };
       if (type === "enter") return config.molasses;
     },
     from: { opacity: 0, transform: "translateX(-30%) translateY(0%)" },
@@ -127,17 +152,29 @@ const MainPreview = ({
   };
   const animation = useTransition(Title, null, transition);
 
+  const drawSlide = useSpring({
+    transform: showDrawer ? "translate(0,0%)" : "translate(0,-100%)",
+  });
+
+  useEffect(() => {
+    if (!isMobile) return setDrawer(true);
+    if (Title) {
+      console.log(Title);
+      setDrawer(true);
+      console.log(showDrawer);
+    }
+    if (show) return setDrawer(true);
+    if (!show) return setDrawer(false);
+  }, [Title, show]);
+
   return (
-    <Flex
+    <MainPreviewStyles
       ref={containerRef}
       className="MainPreview"
       style={{
-        zIndex: 2,
-        width: "70%",
-        height: "100%",
-        top: 0,
-        right: 0,
         position: "fixed",
+        zIndex: 1,
+        ...drawSlide,
         // background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
@@ -145,17 +182,16 @@ const MainPreview = ({
         item ? (
           <AnimationBox
             key={i}
-            p="3em"
+            p={["10px", "3em"]}
             style={{
               right: 0,
               position: "absolute",
-              maxWidth: "45vw",
               height: "100%",
+              width: "100%",
               flexDirection: "column",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-evenly",
-              zIndex: 0,
               ...props,
             }}
           >
@@ -171,12 +207,14 @@ const MainPreview = ({
                 ...props,
               }}
             >
-              <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
+              {!isMobile && (
+                <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
+              )}
             </AnimationCard>
 
             <Heading
               color="#d6d6d6"
-              fontSize="4em"
+              fontSize={["6vw", "4em"]}
               style={{ whiteSpace: "nowrap" }}
               letterSpacing="16px"
             >
@@ -188,7 +226,7 @@ const MainPreview = ({
               {Awards}
             </Text>
             <Card pt="1em" color="white" fontSize=".8em">
-              <Text textAlign="left">{Plot}</Text>
+              <Text textAlign={isMobile ? "center" : "left"}>{Plot}</Text>
             </Card>
             <Button
               m=".5em"
@@ -207,14 +245,18 @@ const MainPreview = ({
             style={{ ...props, margin: "auto", alignSelf: "center" }}
           >
             <Flex width={[1]} justifyContent="center" alignItems="center">
-              <Heading color="white" fontSize="7em">
+              <Heading
+                style={{ marginRight: "3em" }}
+                color="white"
+                fontSize={["3em", "7em"]}
+              >
                 BroFlix
               </Heading>
             </Flex>
           </animated.div>
         )
       )}
-    </Flex>
+    </MainPreviewStyles>
   );
 };
 
@@ -319,16 +361,33 @@ export default function Movies() {
   const [player, togglePlayer] = useState(false);
   const [inspect, toggleInspect] = useState(false);
   const [isTop, checkPosition] = useState(false);
+  const [previewState, togglePreview] = useState(false);
   const boxRef = useRef(null);
   const categories = genres;
+
+  const bindScroll = useWheel((e) => {
+    const goingDown = e.delta[1] < 0 ? true : false;
+    const shouldChage = e.velocity > 1 ? true : false;
+    if (shouldChage && !goingDown) {
+      return togglePreview(false);
+    }
+    if (shouldChage & goingDown) {
+      return togglePreview(true);
+    }
+  });
 
   return (
     <Box
       ref={boxRef}
       style={{ display: "flex", height: "100%", flexDirection: "column" }}
     >
-      <MainPreview togglePlayer={togglePlayer} welcome={isTop} {...inspect} />
-      <Box mt="10vh">
+      <MainPreview
+        show={previewState}
+        togglePlayer={togglePlayer}
+        welcome={isTop}
+        {...inspect}
+      />
+      <Box {...bindScroll()} mt="10vh" px={["0em", "6em"]}>
         {categories.map((category, i) => {
           return (
             <Slider

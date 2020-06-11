@@ -44,7 +44,6 @@ const PrivateRoutes = ({ User, children }) => {
 
 const AppRouter = (params) => {
   const { User, handleLogout } = Auth.useContainer();
-  console.log(User);
   const withUser = (Component) => (props) => (
     <Component User={User} {...props} />
   );

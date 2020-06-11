@@ -5,7 +5,7 @@ import {
   MdEventAvailable,
   MdPerson,
   MdAccountBalance,
-  MdHome
+  MdHome,
 } from "react-icons/md";
 import { Box, Flex } from "rebass";
 import { template } from "./Dash_Template";
@@ -34,8 +34,7 @@ const LinkContainer = styled(Box)`
 const NavContainer = animated(styled(Flex)`
   position: relative;
   display: flex;
-  flex-direction: column;
-  padding-top: ${template.containerPadding};
+  /* padding-top: ${template.containerPadding}; */
   padding-right: 0;
   min-width: 250px;
   z-index: 1;
@@ -49,11 +48,9 @@ const NavContainer = animated(styled(Flex)`
     transform: translateY(-50%);
   }
 
-  @media screen and (min-width: 800px) {
     transform: translateX(0%) !important ;
-  }
 
-  @media screen and (max-width: 800px) {
+  /* @media screen and (max-width: 800px) {
     background-color: black;
     padding-top: 4em;
     position: absolute;
@@ -70,13 +67,11 @@ const NavContainer = animated(styled(Flex)`
       pointer-events: all;
       opacity: 1;
     }
-  }
+  } */
   .wrapper {
     background: ${template.bg};
     display: flex;
-    flex-direction: column;
     width: 100%;
-    height: 100%;
     margin-bottom: 1em;
     border-radius: 4px;
 
@@ -105,10 +100,10 @@ export const Nav = ({ Pages, activeIndex, setIndex }) => {
   const inAmin = useSpring(
     isActive
       ? {
-          transform: "translateX(0%)"
+          transform: "translateX(0%)",
         }
       : {
-          transform: "translateX(-75%)"
+          transform: "translateX(-75%)",
         }
   );
 
@@ -117,23 +112,22 @@ export const Nav = ({ Pages, activeIndex, setIndex }) => {
       isActive={isActive}
       alignItems="center"
       justifyContent="spaced-evenly"
-      flexBasis="25%"
       style={inAmin}
     >
-      <BurgerButton
+      {/* <BurgerButton
         onClick={() => setStatus(!isActive)}
         className="Dash_Nav_BurgerButton"
-      />
-      <Flex
+      /> */}
+      {/* <Flex
         justifyContent="center"
         alignItems="center"
         maxHeight="10em"
         className="wrapper"
       >
         <MdAccountBalance size="3.5em" />
-      </Flex>
+      </Flex> */}
 
-      <Box pt="3em" className="wrapper">
+      <Box style={{ justifyContent: "flex-end" }} className="wrapper">
         {Pages.map(({ title, icon }, i) => (
           <Link
             isActive={activeIndex === i}

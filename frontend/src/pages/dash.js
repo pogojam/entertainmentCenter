@@ -121,7 +121,10 @@ export default function Dash(rest) {
   const Page = Pages[index].content;
 
   return (
-    <Flex style={{ color: Template.secondary }} height="100%">
+    <Flex
+      style={{ color: Template.secondary, flexDirection: "column" }}
+      height="100%"
+    >
       <Nav Pages={Pages} activeIndex={index} setIndex={setIndex} />
       <PageContainer
         style={{ ...Pages[index].layoutStyle, tranistion: "width .3s linear" }}

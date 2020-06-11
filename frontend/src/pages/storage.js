@@ -50,7 +50,7 @@ const DirectoryCard = ({ name, fileName, dir, path, subRefetch, ...props }) => {
   const [sub, set] = useState(null);
   const [isEnter, setEnter] = useState(null);
   const { data, refetch } = useQuery(QUERY, {
-    variables: { input: path + fileName + "/" }
+    variables: { input: path + fileName + "/" },
   });
 
   const handleFolderClick = () => {
@@ -58,7 +58,7 @@ const DirectoryCard = ({ name, fileName, dir, path, subRefetch, ...props }) => {
     set(null);
   };
 
-  const handleRefetch = fetch => {
+  const handleRefetch = (fetch) => {
     fetch();
     set(data.getFiles);
     console.log(data);
@@ -72,23 +72,23 @@ const DirectoryCard = ({ name, fileName, dir, path, subRefetch, ...props }) => {
   );
 
   const dragEvents = {
-    onDragOver: e => {
+    onDragOver: (e) => {
       e.stopPropagation();
       e.preventDefault();
       if (!sub) set(data.getFiles);
     },
-    onDragLeave: e => {},
-    onDrop: e => {
+    onDragLeave: (e) => {},
+    onDrop: (e) => {
       e.preventDefault();
       e.stopPropagation();
       const dt = e.dataTransfer;
       const files = dt.files;
-      [...files].forEach(file =>
+      [...files].forEach((file) =>
         uploadFile(file, path + fileName + "/", () =>
           handleRefetch(subRefetch ? subRefetch : refetch)
         )
       );
-    }
+    },
   };
 
   return (
@@ -122,7 +122,7 @@ const DirectoryCard = ({ name, fileName, dir, path, subRefetch, ...props }) => {
 };
 
 const Menue = ({ setMode }) => {
-  const handleAddFolder = path => {
+  const handleAddFolder = (path) => {
     setMode("addFolder");
   };
 
@@ -158,7 +158,7 @@ const AddFolder = () => {
 export default function Storage() {
   const [mode, setMode] = useState(null);
   const { loading, data, error, refetch } = useQuery(QUERY, {
-    variables: { input: "/" }
+    variables: { input: "/" },
   });
 
   !loading && console.log(data);
@@ -168,7 +168,7 @@ export default function Storage() {
       style={{ borderRadius: "3px", height: "90%" }}
       bg="#cecece"
       p="1em"
-      m="3em"
+      m={["0", "3em"]}
     >
       <Card
         style={{ borderRadius: "3px", height: "100%", overflowY: "scroll" }}

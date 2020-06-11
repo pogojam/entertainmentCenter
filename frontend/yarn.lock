@@ -9191,6 +9191,11 @@ react-stripe-elements@^6.0.1:
   dependencies:
     prop-types "15.7.2"
 
+react-use-gesture@^7.0.15:
+  version "7.0.15"
+  resolved "https://registry.yarnpkg.com/react-use-gesture/-/react-use-gesture-7.0.15.tgz#93c651e916a31cfb12d079e7fa1543d5b0511e07"
+  integrity sha512-vHQkaa7oUbSDTAcFk9huQXa7E8KPrZH91erPuOMoqZT513qvtbb/SzTQ33lHc71/kOoJkMbzOkc4uoA4sT7Ogg==
+
 react-with-firebase-auth@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/react-with-firebase-auth/-/react-with-firebase-auth-1.2.0.tgz#a54e0eabaa6a5d839c7cd26b945337eabf82cfd7"

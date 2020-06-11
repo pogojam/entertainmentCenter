@@ -22,7 +22,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const uploadLink = createUploadLink({
-  uri: window.location.hostname + ":5000/graphql",
+  uri: "http://" + window.location.hostname + ":5000/graphql",
 });
 
 export const client = new ApolloClient({

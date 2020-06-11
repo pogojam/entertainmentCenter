@@ -6,6 +6,7 @@ import { MdDragHandle } from "react-icons/md";
 import { Chore } from "./Dash_Chore";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/react-hooks";
+import Loader from "../loader";
 // Calendar should be able to switch between a week , month and year
 
 // ## Calendar
@@ -193,6 +194,7 @@ export const Calendar = ({ outlook = 7 }) => {
     },
   });
 
+  if (loading) return <Loader />;
   return (
     <CalendarContainer className={"wrapper"}>
       {Days.current.map(

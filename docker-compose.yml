@@ -3,14 +3,18 @@ services:
   server:
     build: ./server
     privileged: true
+    expose:
+      - "5000"
     ports:
       - "5000:5000"
     env_file:
       - ./server/.env
     devices:
-      - "/dev/sda1"
+      - "/dev/sda1:/temp/"
   frontend:
     build: ./frontend
+    expose:
+      - "3000"
     depends_on:
       - server
     ports:

@@ -27,6 +27,7 @@
     "react-scripts": "3.0.1",
     "react-spring": "^8.0.27",
     "react-stripe-elements": "^6.0.1",
+    "react-use-gesture": "^7.0.15",
     "react-with-firebase-auth": "^1.2.0",
     "rebass": "^3.2.0",
     "resize-observer-polyfill": "^1.5.1",
@@ -36,8 +37,9 @@
     "unstated-next": "^1.1.0"
   },
   "scripts": {
-    "start": "npm run build && serve -s build -l 3000 ",
-    "dev": "node ./build/build.js && react-scripts  -r dotenv/config start ",
+    "start": " react-scripts  -r dotenv/config start ",
+    "production": "npm build && serve -s build -l 3000 ",
+    "dev": " HOST=0.0.0.0 react-scripts  -r dotenv/config start ",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

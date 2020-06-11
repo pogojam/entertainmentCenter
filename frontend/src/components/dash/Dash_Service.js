@@ -17,10 +17,18 @@ const ServiceContainer = styled.div`
   input::-webkit-calendar-picker-indicator {
     background-color: aqua;
   }
+  input {
+    color: aqua;
+    width: 100%;
+  }
   position: relative;
   .Service_Heading {
     padding: 10px;
-    width: 100%;
+    @media (max-width: 600) {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
   }
   .Menu_Container {
     height: 100%;
@@ -31,6 +39,7 @@ const ServiceContainer = styled.div`
   form {
     padding: 1em;
     border-radius: 3px;
+    grid-gap: 30px;
   }
 `;
 
@@ -66,7 +75,7 @@ const AddServiceForm = ({ refetch }) => {
       onSubmit={handleSubmit}
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit,minmax(40px,1fr))",
+        gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
         alignItems: "center",
         width: "50%",
         height: "100%",
@@ -95,7 +104,12 @@ const AddServiceForm = ({ refetch }) => {
         />
       </span>
       <input
-        style={{ position: "absolute", right: "15px", bottom: "15px" }}
+        style={{
+          position: "absolute",
+          maxWidth: "200px",
+          right: "15px",
+          bottom: "15px",
+        }}
         type="submit"
       />
     </form>
@@ -153,7 +167,7 @@ const Slider = ({ refetch, children, admin, data }) => {
       refetchQueries: ["getServices"],
     });
   };
-  if (!data) return;
+  if (!data) return <Loader />;
   return data.getServices.map(({ name }, i) => (
     <ServiceContainer
       key={i}
