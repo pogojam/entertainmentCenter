@@ -12,13 +12,12 @@ import { PaymentForm } from "../components/forms/Form_Payment";
 import { Template } from "../components/template";
 
 const PageContainer = styled(Box)`
-  display: grid;
+  /* display: grid; */
   grid-gap: ${Template.containerPadding};
 
   .wrapper {
     border-radius: 4px;
     background: ${Template.bg};
-    padding: 1.5em;
     box-sizing: border-box;
     max-width: 100%;
   }
@@ -48,16 +47,25 @@ const Utility_Page = {
         );
       case "admin":
         return (
-          <Service.Fetch>
-            {(data, refetch) => (
-              <>
-                <Service.CreateService refetch={refetch} />
-                <Service.Slider refetch={refetch} admin data={data}>
-                  {(service) => <BillCards admin service={service} />}
-                </Service.Slider>
-              </>
-            )}
-          </Service.Fetch>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "500px 1fr",
+              gridTemplateRows: "repeat(auto-fill,minmax(0,1fr))",
+              gridGap: "1em",
+            }}
+          >
+            <Service.Fetch>
+              {(data, refetch) => (
+                <>
+                  <Service.CreateService refetch={refetch} />
+                  <Service.Slider refetch={refetch} admin data={data}>
+                    {(service) => <BillCards admin service={service} />}
+                  </Service.Slider>
+                </>
+              )}
+            </Service.Fetch>
+          </div>
         );
       default:
         return <Box />;
@@ -116,19 +124,25 @@ const Account_Page = {
 const Pages = [Utility_Page, Home_Page, Account_Page];
 
 export default function Dash(rest) {
+  const navRef = useRef();
+  const [navHeight, setHeight] = useState();
   const [index, setIndex] = useState(0);
-  const { User } = Auth.useContainer();
   const Page = Pages[index].content;
+  useEffect(() => {
+    if (navRef.current) {
+      console.log(navRef);
+
+      setHeight(navRef.current.getBoundingClientRect().height);
+    }
+  }, [navRef.current]);
 
   return (
-    <Flex
-      style={{ color: Template.secondary, flexDirection: "column" }}
-      height="100%"
-    >
-      <Nav Pages={Pages} activeIndex={index} setIndex={setIndex} />
+    <Flex style={{ color: Template.secondary, flexDirection: "column" }}>
+      <Nav ref={navRef} Pages={Pages} activeIndex={index} setIndex={setIndex} />
       <PageContainer
         style={{ ...Pages[index].layoutStyle, tranistion: "width .3s linear" }}
         p="1.5em"
+        mt={navHeight ? navHeight : "1em"}
         height="100%"
         width="100%"
       >

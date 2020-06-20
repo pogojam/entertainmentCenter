@@ -25,6 +25,7 @@ type User {
   email: String
   autoPay: Boolean
   role: String
+  validated: Boolean
 }
 
 type Role {

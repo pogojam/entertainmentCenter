@@ -1,5 +1,5 @@
 export const template = {
-  bg: "#5c548a2b",
+  bg: "#ea91ff2b",
   secondary: "aqua",
-  containerPadding: "1.5em"
+  containerPadding: "1.5em",
 };

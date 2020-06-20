@@ -11,11 +11,11 @@ module.exports = {
     getMovielist: (obj, { title }, { database }) => {
       const list = database.movie.getMovielist();
       return list;
-    }
+    },
   },
   Mutation: {
     addMovie: (obj, { title }, { database }) => {
       database.movie.getMovie(title);
-    }
-  }
+    },
+  },
 };

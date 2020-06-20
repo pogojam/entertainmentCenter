@@ -26,7 +26,7 @@ const TabContaienr = styled.div`
 
 const BillContainer = styled(Box)`
   display: flex;
-  background: aqua;
+  background: ${({ bgColor }) => bgColor};
   border-radius: 4px;
   color: black;
 
@@ -93,7 +93,7 @@ export const BillCard = ({
         boxShadow: "rgba(0, 0, 0, 0.59) 0px 3px 9px 1px",
         position: "relative",
         maxWidth: "10%",
-        minWidth: "70px",
+        minWidth: "150px",
         height: "unset",
       }}
       drawerItem={() => (
@@ -118,8 +118,9 @@ export const BillCard = ({
         as="form"
         style={{ height: "100%" }}
         onSubmit={(e) => changeBill(e, billID)}
+        bgColor={"#9392bf99"}
       >
-        <Box color={"black"} fontSize=".5em">
+        <Box color={"black"} fontSize="1rem">
           <Heading style={{ fontSize: "1.4em" }}>Due</Heading>
           <span>{date}</span>
         </Box>

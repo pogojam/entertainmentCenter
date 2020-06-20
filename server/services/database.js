@@ -60,7 +60,6 @@ const auth = {
     if (id.length === 1) {
       const dbRole = await this.usersRef.doc(id[0]).get();
       const user = await dbRole.data();
-      console.log(user);
       output.push(user);
     }
     return output;
@@ -147,6 +146,7 @@ const movie = {
         output.push(e.data());
       }
     });
+
     return output;
   },
   getMovielist: async function () {

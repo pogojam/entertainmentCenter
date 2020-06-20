@@ -14,12 +14,21 @@ import { Template } from "../template";
 import styled from "styled-components";
 
 const ServiceContainer = styled.div`
+  min-height: 300px;
+
   input::-webkit-calendar-picker-indicator {
     background-color: aqua;
   }
   input {
     color: aqua;
     width: 100%;
+  }
+  .submit {
+    /* position: inherit;
+    top: 10px;
+    left: 10px; */
+    @media (max-width: 600) {
+    }
   }
   position: relative;
   .Service_Heading {
@@ -39,7 +48,8 @@ const ServiceContainer = styled.div`
   form {
     padding: 1em;
     border-radius: 3px;
-    grid-gap: 30px;
+    grid-gap: 0.8em;
+    min-width: 150px;
   }
 `;
 
@@ -103,15 +113,7 @@ const AddServiceForm = ({ refetch }) => {
           onChange={(e) => handleChange(e, setName)}
         />
       </span>
-      <input
-        style={{
-          position: "absolute",
-          maxWidth: "200px",
-          right: "15px",
-          bottom: "15px",
-        }}
-        type="submit"
-      />
+      <input className="submit" type="submit" />
     </form>
   );
 };
@@ -128,10 +130,15 @@ const CreateService = ({ refetch }) => (
     }}
     alignItems="center"
     justifyContent="space-around"
-    p={Template.containerPadding}
+    // p={Template.containerPadding}
   >
     <Heading
-      style={{ textAlign: "left" }}
+      style={{
+        textAlign: "left",
+        display: "absolute",
+        top: "10px",
+        left: "10px",
+      }}
       className="Service_Heading"
       fontSize=".8em"
     >
@@ -149,59 +156,73 @@ const ServiceMenu = ({ refetch, name }) => {
 };
 
 const Fetch = ({ children }) => {
-  const { loading, error, data, refetch } = useQuery(QUERY_Services);
-  console.log(data);
-  return !loading ? children(data, refetch) : <Loader />;
+  const { loading, data, refetch } = useQuery(QUERY_Services);
+  if (!loading) return children(data, refetch);
+  else return <Loader />;
 };
 
 const Slider = ({ refetch, children, admin, data }) => {
-  const [mutation] = useMutation(MUTATION_removeService);
+  // const [mutation] = useMutation(MUTATION_removeService);
 
-  const removeService = (name) => {
-    mutation({
-      variables: {
-        input: {
-          name,
-        },
-      },
-      refetchQueries: ["getServices"],
-    });
-  };
+  // // const removeService = (name) => {
+  // //   mutation({
+  // //     variables: {
+  // //       input: {
+  // //         name,
+  // //       },
+  // //     },
+  // //     refetchQueries: ["getServices"],
+  // //   });
+  // // };
   if (!data) return <Loader />;
-  return data.getServices.map(({ name }, i) => (
-    <ServiceContainer
-      key={i}
-      className="wrapper"
-      flexDirection="column"
-      style={{ overflow: "hidden", position: "relative" }}
-      width="100%"
-    >
-      <Menu
-        side="right"
-        drawerItem={() => <ServiceMenu name={name} refetch={refetch} />}
+  else
+    return data.getServices.map(({ name }, i) => (
+      <ServiceContainer
+        key={i}
+        className="wrapper"
+        flexDirection="column"
+        style={{
+          overflow: "hidden",
+          height: "100%",
+          position: "relative",
+          gridColumn: "2/3",
+        }}
+        width="100%"
       >
-        <Flex className="Service_Heading">
-          <Heading fontSize=".8em">{name}</Heading>
-        </Flex>
-        <Flex
-          p=".3em"
-          style={{
-            alignItems: "center",
-            height: "100%",
-            fontSize: "1.24vw",
-          }}
+        <Menu
+          side="right"
+          drawerItem={() => <ServiceMenu name={name} refetch={refetch} />}
         >
           <Flex
             style={{
-              width: "100%",
+              top: 0,
+              left: 0,
+              zIndex: 3,
+            }}
+            className="Service_Heading"
+          >
+            <Heading fontSize="20px">{name}</Heading>
+          </Flex>
+          <Flex
+            p=".3em"
+            style={{
+              alignItems: "center",
+              height: "80%",
+              fontSize: "1.24vw",
             }}
           >
-            {children && children(name)}
+            <Flex
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              {children && children(name)}
+            </Flex>
           </Flex>
-        </Flex>
-      </Menu>
-    </ServiceContainer>
-  ));
+        </Menu>
+      </ServiceContainer>
+    ));
 };
 
 export const Service = {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import ReactDOM from "react-dom";
 import {
   BrowserRouter as Router,
@@ -7,8 +7,7 @@ import {
   Switch,
 } from "react-router-dom";
 import { Dash, Movies, Music, Storage, Login } from "../pages";
-import build from "../pages/build.json";
-import Nav from "../components/nav/mainNav";
+import Nav from "../components/nav/nav";
 import { Auth } from "../components/auth/index";
 
 const Layout = ({ children }) => {
@@ -42,20 +41,14 @@ const PrivateRoutes = ({ User, children }) => {
   );
 };
 
-const AppRouter = (params) => {
+const AppRouter = () => {
   const { User, handleLogout } = Auth.useContainer();
-  const withUser = (Component) => (props) => (
-    <Component User={User} {...props} />
-  );
-
+  const withUser = useCallback((Component) => () => <Component User={User} />, [
+    User,
+  ]);
   return (
     <Router>
-      <Nav
-        visible={true}
-        pages={build.pages}
-        isLoggedIn={User}
-        logout={handleLogout}
-      />
+      <Nav isLoggedIn={User} logout={handleLogout} />
       <Layout>
         <Switch>
           <Route path="/Login" component={Login} />

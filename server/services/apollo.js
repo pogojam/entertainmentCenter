@@ -14,12 +14,17 @@ const context = async ({ req }) => {
   let user = null;
 
   if (token) {
-    const { uid } = await auth.verifyIdToken(token);
-    const { role } = await database.auth.getUser([uid]);
-    user = {
-      uid,
-      role,
-    };
+    try {
+      const { uid } = await auth.verifyIdToken(token);
+      const { role } = await database.auth.getUser([uid]);
+
+      user = {
+        uid,
+        role,
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
   return { database, auth, user, stripe };
 };

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useToggle } from "../util";
 import Icon from "./icon";
 import styled from "styled-components";
@@ -86,11 +86,16 @@ const Menu = ({
   ...props
 }) => {
   const ref = useRef();
+  const mounted = useRef(false);
   const size = useSize(ref);
   const [showMenu, toggle] = useToggle(false);
   const anim = useSpring(
     side ? animation[side](showMenu, size) : animation.bottom(showMenu, size)
   );
+  useEffect(() => {
+    mounted.current = true;
+    return () => (mounted.current = false);
+  }, []);
   return (
     <Menu_Container
       onMouseLeave={mouseLeave && mouseLeave}

@@ -27,17 +27,20 @@ const LinkContainer = styled(Box)`
   /* Animations */
   transition: all 0.6s cubic-bezier(0.455, 0.03, 0.515, 0.955);
   &:hover {
-    background-color: #090b0c69;
+    background-color: black;
   }
 `;
 
 const NavContainer = animated(styled(Flex)`
-  position: relative;
+  position: fixed;
   display: flex;
   /* padding-top: ${template.containerPadding}; */
   padding-right: 0;
+  right:0;
+  width:100%;
   min-width: 250px;
   z-index: 1;
+background:#163556;
 
   .Dash_Nav_BurgerButton {
     pointer-events: none;
@@ -73,7 +76,6 @@ const NavContainer = animated(styled(Flex)`
     display: flex;
     width: 100%;
     margin-bottom: 1em;
-    border-radius: 4px;
 
     &:last-child {
       margin-bottom: 0;
@@ -94,7 +96,7 @@ const Link = ({ isActive, index, navigatePage, Icon, title }) => (
   </LinkContainer>
 );
 
-export const Nav = ({ Pages, activeIndex, setIndex }) => {
+export const Nav = React.forwardRef(({ Pages, activeIndex, setIndex }, ref) => {
   const [isActive, setStatus] = useState(false);
 
   const inAmin = useSpring(
@@ -109,24 +111,12 @@ export const Nav = ({ Pages, activeIndex, setIndex }) => {
 
   return (
     <NavContainer
+      ref={ref}
       isActive={isActive}
       alignItems="center"
       justifyContent="spaced-evenly"
       style={inAmin}
     >
-      {/* <BurgerButton
-        onClick={() => setStatus(!isActive)}
-        className="Dash_Nav_BurgerButton"
-      /> */}
-      {/* <Flex
-        justifyContent="center"
-        alignItems="center"
-        maxHeight="10em"
-        className="wrapper"
-      >
-        <MdAccountBalance size="3.5em" />
-      </Flex> */}
-
       <Box style={{ justifyContent: "flex-end" }} className="wrapper">
         {Pages.map(({ title, icon }, i) => (
           <Link
@@ -141,4 +131,4 @@ export const Nav = ({ Pages, activeIndex, setIndex }) => {
       </Box>
     </NavContainer>
   );
-};
+});

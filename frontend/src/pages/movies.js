@@ -32,6 +32,7 @@ const queryMovies = gql`
       Genre
       Plot
       Poster
+      Path
     }
   }
 `;
@@ -120,6 +121,7 @@ const MainPreview = ({
   Title,
   togglePlayer,
   show,
+  Path,
 }) => {
   const [showDrawer, setDrawer] = useState(false);
   const isMobile = window.innerWidth < 600;
@@ -139,6 +141,7 @@ const MainPreview = ({
   const playerOptions = {
     fullScreen: true,
     exit: () => togglePlayer(false),
+    Path,
   };
 
   const transition = {
@@ -159,9 +162,7 @@ const MainPreview = ({
   useEffect(() => {
     if (!isMobile) return setDrawer(true);
     if (Title) {
-      console.log(Title);
       setDrawer(true);
-      console.log(showDrawer);
     }
     if (show) return setDrawer(true);
     if (!show) return setDrawer(false);
@@ -318,7 +319,7 @@ const Slider = ({ handleClick, category, Slide }) => {
 
   return (
     <>
-      {!loading && movieData.length > 0 && (
+      {!loading && Array.isArray(movieData) && (
         <animated.div
           style={{
             opacity: scrollAnim.opc.interpolate((e) => e),
@@ -415,7 +416,7 @@ export default function Movies() {
         {" "}
         Contribute
       </Button>
-      {player && <VideoPlayer {...player} />}
+      {player && <VideoPlayer videoName={"ballers"} {...player} />}
       {upload && <Upload toggle={toggleUpload} />}
     </Box>
   );
