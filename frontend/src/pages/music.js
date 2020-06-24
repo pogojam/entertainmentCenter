@@ -35,7 +35,7 @@ export default function Music() {
       </button>
       <Box
         as="video"
-        style={{ height: "100%" }}
+        style={{ height: "100%", overflowY: "scroll" }}
         width={[1]}
         src={videoStream}
       />

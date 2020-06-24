@@ -1,14 +1,22 @@
-const theme = {
-  fonts: {
-    body: "system-ui, sans-serif",
-    heading: '"Avenir Next", sans-serif',
-    monospace: "Menlo, monospace"
-  },
-  colors: {
-    text: "#000",
-    background: "#fff",
-    primary: "#33e"
-  }
-};
+import { createMuiTheme } from "@material-ui/core/styles";
 
-export default theme;
+export default createMuiTheme({
+  paper: {
+    backgrounds: {
+      contrast: "#000007a",
+    },
+  },
+  palette: {
+    bgCard: "aqua",
+    primary: {
+      main: "#4a148c",
+    },
+    secondary: {
+      main: "#1565c0",
+    },
+    error: {
+      main: "#e50000",
+      contrastText: "#ffffff",
+    },
+  },
+});

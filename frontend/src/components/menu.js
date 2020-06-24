@@ -4,8 +4,9 @@ import Icon from "./icon";
 import styled from "styled-components";
 import { useSize } from "../util";
 import { useSpring, animated } from "react-spring";
+import { Card } from "@material-ui/core";
 
-const Menu_Container = styled.div`
+const MenuContainer = styled(Card)`
   position: relative;
   overflow: hidden;
 
@@ -25,23 +26,26 @@ const Menu_Container = styled.div`
     align-items: center;
     max-width: 100%;
   }
+  .Menu_Icon_Container {
+    background-color: #b566ff;
+  }
 `;
 
 const animation = {
-  bottom: (showMenu, size) => ({
+  bottom: (showMenu, size, tabBarPeek) => ({
     transform: `translateY(${
-      showMenu ? `0%` : `${size.height ? size.height - 19 : 2000}px`
+      showMenu ? `0%` : `${size.height ? size.height - tabBarPeek : 2000}px`
     })`,
     flexDirection: "column",
   }),
-  right: (showMenu, size) => ({
+  right: (showMenu, size, tabBarPeek) => ({
     transform: `translateX(${
-      showMenu ? `0%` : `${size.width ? size.width - 19 : 2000}px`
+      showMenu ? `0%` : `${size.width ? size.width - tabBarPeek : 2000}px`
     })`,
   }),
-  left: (showMenu, size) => ({
+  left: (showMenu, size, tabBarPeek) => ({
     transform: `translateX(${
-      showMenu ? `0%` : `${size.width ? -size.width + 19 : -2000}px`
+      showMenu ? `0%` : `${size.width ? -size.width + tabBarPeek : -2000}px`
     })`,
     flexDirection: "row-reverse",
   }),
@@ -78,6 +82,9 @@ const styles = {
 
 const Menu = ({
   drawerItem: Drawer,
+  tabBarPeek = 19,
+  toggleMenu: toggleMenuExternal,
+  menuStatus: toggleMenuExternalStatus,
   children,
   side,
   className,
@@ -88,16 +95,24 @@ const Menu = ({
   const ref = useRef();
   const mounted = useRef(false);
   const size = useSize(ref);
-  const [showMenu, toggle] = useToggle(false);
+  const [toggleStatus, toggle] = useToggle(false);
+  const showMenu =
+    typeof toggleMenuExternalStatus !== "undefined"
+      ? toggleMenuExternalStatus
+      : toggleStatus;
+
   const anim = useSpring(
-    side ? animation[side](showMenu, size) : animation.bottom(showMenu, size)
+    side
+      ? animation[side](showMenu, size, tabBarPeek)
+      : animation.bottom(showMenu, size, tabBarPeek)
   );
   useEffect(() => {
     mounted.current = true;
     return () => (mounted.current = false);
   }, []);
+
   return (
-    <Menu_Container
+    <MenuContainer
       onMouseLeave={mouseLeave && mouseLeave}
       className="Menu_Container"
       {...props}
@@ -106,7 +121,13 @@ const Menu = ({
       <animated.div ref={ref} className="Slide" style={anim}>
         <div
           className="Menu_Icon_Container"
-          onClick={toggle}
+          onClick={() => {
+            if (toggleMenuExternal) {
+              toggleMenuExternal();
+            } else {
+              toggle();
+            }
+          }}
           style={{
             ...styles[side].container,
             display: "flex",
@@ -141,7 +162,7 @@ const Menu = ({
           <Drawer />
         </div>
       </animated.div>
-    </Menu_Container>
+    </MenuContainer>
   );
 };
 

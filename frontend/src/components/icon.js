@@ -24,6 +24,7 @@ import {
   IoMdTrophy,
   IoMdPerson,
   IoIosEasel,
+  IoIosWater,
 } from "react-icons/io";
 import {
   MdLocationCity,
@@ -191,6 +192,8 @@ const Icon = ({ type, ...props }) => {
       return withProps(FiUnlock, props);
     case "easel":
       return withProps(IoIosEasel, props);
+    case "water":
+      return withProps(IoIosWater, props);
 
     default:
       return <div></div>;

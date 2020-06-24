@@ -1,4 +1,5 @@
 const express = require("express");
+const { asyncForEach } = require("../util");
 const fs = require("fs");
 const p = require("path");
 const videoRoutes = express.Router();
@@ -47,24 +48,6 @@ const Files = {};
 
 const videoSockets = (socket, stream, database) => {
   const movieFolder = p.join(__dirname, "..", "/movies/");
-  const setupMovieMetaData = async (name) => {
-    const nameElements = name.split(".");
-    const metaData = await getMovieData(nameElements[0]);
-    //Will not upload movie if it's not found on the IMBd database
-    if (metaData === "Movie not found!") return console.log("Movie not found");
-
-    const { title } = metaData;
-    const movieCollection = database
-      .collection("movies")
-      .doc(title || nameElements[0]);
-    const dataTemplate = {
-      RawName: nameElements[0],
-      FileExtension: nameElements[1],
-      Path: name,
-    };
-    typeof metaData === "object" && Object.assign(dataTemplate, metaData);
-    movieCollection.set(dataTemplate);
-  };
 
   socket.on("Upload", ({ name, data }) => {
     Files[name].Downloaded += data.length;
@@ -143,9 +126,55 @@ const videoSockets = (socket, stream, database) => {
     }
   });
 
-  stream.on("streamVideo", (stream, { path }) => {
-    console.log(stream, "data", data, path);
-    stream.pipe(fs.createReadStream(path));
+  const setupMovieMetaData = async (name) => {
+    const nameElements = name.split(".");
+    const newName = nameElements[0].replace("-", " ");
+    const metaData = await getMovieData(newName);
+    //Will not upload movie if it's not found on the IMBd database
+    console.log("New movie metaData");
+    if (metaData === "Movie not found!") return false;
+
+    const { title } = metaData;
+    const movieCollection = database
+      .collection("movies")
+      .doc(title || nameElements[0]);
+    const dataTemplate = {
+      RawName: nameElements[0],
+      FileExtension: nameElements[1],
+      Path: name,
+    };
+    typeof metaData === "object" && Object.assign(dataTemplate, metaData);
+    movieCollection.set(dataTemplate);
+    return true;
+  };
+
+  stream.on("pendUpload", async (files) => {
+    console.log("Pending", files);
+    try {
+      const pending = [];
+      let current;
+      await asyncForEach(files, async (file) => {
+        const shouldPendData = await setupMovieMetaData(file.name);
+        if (shouldPendData) pending.push(file);
+        else return;
+      });
+      console.log("Asyn Movie lookup finished", pending);
+
+      pending.forEach(({ index, name }) => {
+        console.log("file to be requested index", name, index);
+        stream.emit("getFile", { index, name });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  stream.on("fileUpload", (fileStream, { name }) => {
+    console.log("uploading", name);
+    const writeStream = fs.createWriteStream(
+      p.join(__dirname, "..", "/movies/", name)
+    );
+    fileStream.pipe(writeStream);
+    console.log(name);
   });
 };
 

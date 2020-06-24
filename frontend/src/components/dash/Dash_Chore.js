@@ -1,8 +1,22 @@
 import React from "react";
+import useStyles from "./chores/Dash_Chores_Styles";
 import styled from "styled-components";
 import { Box } from "rebass";
 
 import { GiVacuumCleaner, GiBroom } from "react-icons/gi";
+import {
+  Grid,
+  Card,
+  CardHeader,
+  CardContent,
+  ListItem,
+  Paper,
+  List,
+  Avatar,
+  ListItemText,
+  Typography,
+  Divider,
+} from "@material-ui/core";
 
 const Chores = [
   {
@@ -32,37 +46,51 @@ const Container = styled(Box)`
   font-size: 2em;
 `;
 
+const PreviewCard = styled(Grid)`
+  min-height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-basis: 100%;
+  background-color: #0000007a;
+  transition: opacity 0.7s cubic-bezier(0.39, 0.575, 0.565, 1);
+  max-width: 240px;
+  border-radius: 20px;
+  &:hover {
+    opacity: 0.7;
+  }
+`;
 const Preview = () => {
-  const PreviewCard = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-basis: 100%;
-    background-color: #0000007a;
-    transition: opacity 0.7s cubic-bezier(0.39, 0.575, 0.565, 1);
-    border-radius: 8px;
-    margin: 0 15px;
-
-    &:hover {
-      opacity: 0.7;
-    }
-  `;
-
+  const classes = useStyles();
   const handleDrag = (e, id) => {
     e.dataTransfer.setData("id", id);
   };
 
   return (
-    <Container className={"wrapper"}>
-      <p style={{ fontSize: ".5em", textAlign: "left" }}>
-        Drag and drop chores into calendar
-      </p>
-      {Chores.map(({ name, icon: Icon }, i) => (
-        <PreviewCard key={i} draggable onDragStart={(e) => handleDrag(e, name)}>
-          <Icon />
-        </PreviewCard>
-      ))}
-    </Container>
+    <Card className={classes.previewCard}>
+      <CardHeader title="Drag and drop chores into calendar"></CardHeader>
+      <Divider />
+      <CardContent>
+        <List container>
+          <Grid container justify="space-around" spacing={2}>
+            {Chores.map(({ name, icon: Icon }, i) => (
+              <PreviewCard
+                className={classes.choreListItem}
+                item
+                key={i}
+                draggable
+                onDragStart={(e) => handleDrag(e, name)}
+              >
+                <Avatar style={{ backgroundColor: "black" }}>
+                  <Icon />
+                </Avatar>
+                <ListItemText primary={name} />
+              </PreviewCard>
+            ))}
+          </Grid>
+        </List>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -85,7 +113,6 @@ const AlertContainer = styled(Box)`
 `;
 
 const Alert = ({ chore, user, id, complete, setChore }) => {
-  console.log(user, id);
   return (
     <AlertContainer>
       {Chores.map(

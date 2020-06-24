@@ -7,6 +7,7 @@ module.exports = {
   Query: {
     getUser: async (_, { id }, { database }) => {
       const user = await database.auth.getUser(id);
+      console.log(user, id, "Getting user");
       return user;
     },
   },

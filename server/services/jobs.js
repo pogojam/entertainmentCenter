@@ -36,6 +36,7 @@ cron.schedule("1 * * * * *", async () => {
             .doc(name + "_" + moment(dueDate).format("LL"))
             .set({
               dueDate,
+              amount: 0,
               service: name,
               paidUsers: [],
               pastDue: false,

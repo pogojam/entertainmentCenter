@@ -4,7 +4,7 @@ import { Box, Button } from "rebass";
 import { Elements, injectStripe, CardElement } from "react-stripe-elements";
 import { useMutation } from "@apollo/react-hooks";
 import gql from "graphql-tag";
-import { Auth } from "../auth/index";
+import Auth_Store from "../state/stores/Auth_Store";
 
 const MUTATION_creatSubscription = gql`
   mutation createSubscription($token: String) {
@@ -29,9 +29,9 @@ const CardElementStyles = {
     background: "#0000007a",
     iconColor: "aqua",
     empty: {
-      color: "#00ffff"
-    }
-  }
+      color: "#00ffff",
+    },
+  },
 };
 
 const SubscribeContainer = styled(Box)`
@@ -82,15 +82,15 @@ const SubscribeContainer = styled(Box)`
 const Subscribe = ({ stripe, User }) => {
   const [mutation] = useMutation(MUTATION_creatSubscription);
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { token } = await stripe.createToken();
       console.log(token);
       mutation({
         variables: {
-          token: token.id
-        }
+          token: token.id,
+        },
       });
     } catch (err) {
       console.log(err);
@@ -130,8 +130,8 @@ const Subscribe = ({ stripe, User }) => {
   );
 };
 
-const StripeFormtWrap = Component => () => {
-  const { User } = Auth.useContainer();
+const StripeFormtWrap = (Component) => () => {
+  const User = Auth_Store.user;
   return (
     <Elements>
       <Component User={User} />
@@ -140,5 +140,5 @@ const StripeFormtWrap = Component => () => {
 };
 
 export const PaymentForm = {
-  Subscribe: StripeFormtWrap(injectStripe(Subscribe))
+  Subscribe: StripeFormtWrap(injectStripe(Subscribe)),
 };

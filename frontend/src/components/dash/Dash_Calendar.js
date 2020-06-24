@@ -7,6 +7,8 @@ import { Chore } from "./Dash_Chore";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import Loader from "../loader";
+import { Grid, Container } from "@material-ui/core";
+
 // Calendar should be able to switch between a week , month and year
 
 // ## Calendar
@@ -49,11 +51,13 @@ const DayContainer = styled(Box)`
   height: 50vh;
 `;
 
-const CalendarContainer = styled(Box)`
+const CalendarContainer = styled(Grid)`
+  flex-basis: 100%;
   display: grid;
   grid-template-columns: repeat(7, minMax(25px, 1fr));
   grid-template-rows: 50px;
   min-height: 300px;
+  background-color: #2d349e;
   .label {
     font-size: 1.2vw;
     display: flex;
@@ -61,6 +65,9 @@ const CalendarContainer = styled(Box)`
     justify-content: center;
     padding: 1em;
     background: #240d2f;
+  }
+  * {
+    color: white;
   }
 `;
 
@@ -194,27 +201,35 @@ export const Calendar = ({ outlook = 7 }) => {
     },
   });
 
-  if (loading) return <Loader />;
+  if (loading)
+    return (
+      <Container style={{ height: "90vh" }}>
+        <Loader />
+      </Container>
+    );
   return (
-    <CalendarContainer className={"wrapper"}>
-      {Days.current.map(
-        (day, i) =>
-          i < 7 && (
-            <div key={i} className="label">
-              {day.format("dddd").toString()}
-            </div>
-          )
-      )}
-      {Days.current.map((day, i) => {
-        const dayData = [];
-        if (data.getChores) {
-          data.getChores.forEach(
-            (chore) =>
-              moment(day).isSame(chore.date, "day") && dayData.push(chore)
-          );
-        }
-        return <DayCard data={dayData} index={i} date={day} key={i} />;
-      })}
-    </CalendarContainer>
+    <>
+      <CalendarContainer item className={"wrapper"}>
+        {Days.current.map(
+          (day, i) =>
+            i < 7 && (
+              <div key={i} className="label">
+                {day.format("dddd").toString()}
+              </div>
+            )
+        )}
+        {Days.current.map((day, i) => {
+          const dayData = [];
+          if (data.getChores) {
+            data.getChores.forEach(
+              (chore) =>
+                moment(day).isSame(chore.date, "day") && dayData.push(chore)
+            );
+          }
+          return <DayCard data={dayData} index={i} date={day} key={i} />;
+        })}
+      </CalendarContainer>
+      <Chore.Preview />
+    </>
   );
 };

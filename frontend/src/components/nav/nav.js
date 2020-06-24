@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { Flex, Image, Button } from "rebass";
 import { useSpring, animated } from "react-spring";
 import { pages } from "../../pages/build.json";
+//Stores
+import AuthStore from "../state/stores/Auth_Store";
 
 const StyledButton = styled(Button)`
   transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -76,7 +78,7 @@ const Container = ({ children, logo, style }) => {
     </Animated>
   );
 };
-const Nav = ({ logout, isLoggedIn, user }) => {
+const Nav = ({ logout, isLoggedIn }) => {
   const isMounted = useRef(false);
   const [buttonWidth, setButtonWidth] = useState(100);
   const [isVisible, toggleVisible] = useState(true);
@@ -118,10 +120,10 @@ const Nav = ({ logout, isLoggedIn, user }) => {
           gridTemplateColumns: `repeat(${5},minmax( 0,1fr ))`,
         }}
       >
-        <NavButton path={"Dash"} name={"Dash"} />
-        <NavButton path={"Movies"} name={"Movies"} />
-        <NavButton path={"Music"} name={"Music"} />
-        <NavButton path={"Storage"} name={"Storage"} />
+        <NavButton path={"/Dash"} name={"Dash"} />
+        <NavButton path={"/Movies"} name={"Movies"} />
+        <NavButton path={"/Music"} name={"Music"} />
+        <NavButton path={"/Storage"} name={"Storage"} />
         {isLoggedIn ? (
           <NavButton onClick={logout} path="/" name="Logout" />
         ) : (

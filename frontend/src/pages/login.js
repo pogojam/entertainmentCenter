@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Redirect } from "react-router-dom";
-import { Auth } from "../components/auth/index";
+import AuthStore from "../components/state/stores/Auth_Store";
 import { Box, Heading, Flex, Button } from "rebass";
+import { toJS } from "mobx";
 const Input = styled.input``;
 
 const InputBox = styled(Box)`
@@ -13,8 +14,12 @@ const InputBox = styled(Box)`
 `;
 
 const Login = ({ initalState = true, location }) => {
-  const [isLogin, setFormState] = useState(initalState);
-  const { User, handleNewuser, handleLogin } = Auth.useContainer();
+  const [isLoginForm, setFormState] = useState(initalState);
+
+  const { createUser, loginUser, isLoggedIn } = AuthStore;
+  const User = toJS(AuthStore.user);
+
+  //Form Controlled State
   const [err, setErr] = useState(null);
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -22,16 +27,14 @@ const Login = ({ initalState = true, location }) => {
   const [lastName, setLast] = useState("");
   const [code, setCode] = useState("");
 
-  return User ? (
-    <Redirect to="/Dash" />
-  ) : (
+  return (
     <Flex
       onSubmit={async (e) => {
         e.preventDefault();
         try {
-          isLogin
-            ? handleLogin({ email, pass })
-            : handleNewuser({ email, pass, firstName, lastName, code });
+          isLoginForm
+            ? loginUser({ email, pass })
+            : createUser({ email, pass, firstName, lastName, code });
           location.pathname = "/Dash";
         } catch (err) {
           setErr(err);
@@ -48,7 +51,7 @@ const Login = ({ initalState = true, location }) => {
         as="form"
         p="2em"
       >
-        <Heading>{isLogin ? "login" : "Signup"}</Heading>
+        <Heading>{isLoginForm ? "login" : "Signup"}</Heading>
         <InputBox
           style={{
             display: "flex",
@@ -71,7 +74,7 @@ const Login = ({ initalState = true, location }) => {
             name="password"
             type="password"
           />
-          {!isLogin && (
+          {!isLoginForm && (
             <>
               <Input
                 onChange={({ target }) => {
@@ -99,11 +102,11 @@ const Login = ({ initalState = true, location }) => {
             </>
           )}
 
-          <Input type="submit" value={isLogin ? "Login" : "Submit"} />
-          {isLogin && (
+          <Input type="submit" value={isLoginForm ? "Login" : "Submit"} />
+          {isLoginForm && (
             <Button
               onClick={() => {
-                setFormState(!isLogin);
+                setFormState(!isLoginForm);
               }}
               bg="black"
             >

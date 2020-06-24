@@ -8,75 +8,78 @@ import fileReaderStream from "filereader-stream";
 
 const socket = io(window.location.hostname + ":5000");
 
-const uploadEvent = (data) => {
-  const uploadSize = 524288;
-  let MovieBuffers = {};
+// const uploadEvent = (data) => {
+//   const uploadSize = 524288;
+//   let MovieBuffers = {};
 
-  const loadFile = (file) => {
-    const fReader = new FileReader();
-    MovieBuffers[file.name] = {
-      name: file.name,
-      place: 0,
-      size: file.size,
-      fReader,
-    };
-    fReader.onload = (event) => {
-      if (!MovieBuffers[file.name].hasOwnProperty("data")) {
-        MovieBuffers[file.name].data = event.target.result;
-        socket.emit("Start", {
-          name: file.name,
-          size: file.size,
-          newFile: true,
-        });
-        return;
-      }
-      const { name, place, data } = MovieBuffers[file.name];
-      socket.emit("Upload", {
-        name,
-        place,
-        data: data.slice(
-          place,
-          place + Math.min(uploadSize, MovieBuffers[name].size - place)
-        ),
-      });
-    };
-    socket.on("MoreData", function ({ place, name, exists }) {
-      // UpdateBar(data['Percent']);
-      place = place * uploadSize; //The Next Blocks Starting Position
-      const NewFileArray = MovieBuffers[name].data.slice(
-        place,
-        place + Math.min(uploadSize, MovieBuffers[name].size - place)
-      );
-      console.log(
-        place,
-        place + Math.min(uploadSize, MovieBuffers[name].size - place)
-      );
+//   const loadFile = (file) => {
+//     const fReader = new FileReader();
+//     MovieBuffers[file.name] = {
+//       name: file.name,
+//       place: 0,
+//       size: file.size,
+//       fReader,
+//     };
+//     fReader.onload = (event) => {
+//       if (!MovieBuffers[file.name].hasOwnProperty("data")) {
+//         MovieBuffers[file.name].data = event.target.result;
+//         socket.emit("Start", {
+//           name: file.name,
+//           size: file.size,
+//           newFile: true,
+//         });
+//         return;
+//       }
+//       const { name, place, data } = MovieBuffers[file.name];
+//       socket.emit("Upload", {
+//         name,
+//         place,
+//         data: data.slice(
+//           place,
+//           place + Math.min(uploadSize, MovieBuffers[name].size - place)
+//         ),
+//       });
+//     };
+//     socket.on("MoreData", function ({ place, name, exists }) {
+//       // UpdateBar(data['Percent']);
+//       place = place * uploadSize; //The Next Blocks Starting Position
+//       const NewFileArray = MovieBuffers[name].data.slice(
+//         place,
+//         place + Math.min(uploadSize, MovieBuffers[name].size - place)
+//       );
+//       console.log(
+//         place,
+//         place + Math.min(uploadSize, MovieBuffers[name].size - place)
+//       );
 
-      const NewFile = new Blob([NewFileArray]);
-      fReader.readAsArrayBuffer(NewFile);
-    });
+//       const NewFile = new Blob([NewFileArray]);
+//       fReader.readAsArrayBuffer(NewFile);
+//     });
 
-    fReader.readAsArrayBuffer(file);
-  };
+//     fReader.readAsArrayBuffer(file);
+//   };
 
-  for (let i = 0; i < data.length; ++i) {
-    loadFile(data[i]);
-  }
-};
+//   for (let i = 0; i < data.length; ++i) {
+//     loadFile(data[i]);
+//   }
+// };
 
-export const uploadFile = async (file, dir, refetch) => {
-  const Stream = ss.createStream();
-  const fileInfo = {
+export const uploadFile = async (files) => {
+  const filesToUpload = Object.values(files).map((file, index) => ({
     name: file.name,
-    dir: dir,
-    size: file.size,
-  };
+    file,
+    index,
+  }));
+  // Request for each file for pending upload
+  console.log("Client Upload");
+  ss(socket).emit("pendUpload", filesToUpload);
 
-  socket.on("uploadEnd", (e) => {
-    refetch();
+  ss(socket).on("getFile", ({ name, index }) => {
+    console.log("Getting File", name, index);
+    const newFileStream = ss.createStream();
+    ss(socket).emit("fileUpload", newFileStream, { name });
+    fileReaderStream(filesToUpload[index].file).pipe(newFileStream);
   });
-  ss(socket).emit("fileUpload", Stream, fileInfo);
-  fileReaderStream(file).pipe(Stream);
 };
 
 export const Upload = ({ toggle }) => {
@@ -106,7 +109,7 @@ export const Upload = ({ toggle }) => {
           onChange={(e) => setFile(e.target.files)}
         />
         {fileData && (
-          <Button onClick={() => uploadEvent(fileData) & toggle(false)}>
+          <Button onClick={() => uploadFile(fileData) & toggle(false)}>
             Upload
           </Button>
         )}

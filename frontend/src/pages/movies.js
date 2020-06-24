@@ -380,7 +380,12 @@ export default function Movies() {
   return (
     <Box
       ref={boxRef}
-      style={{ display: "flex", height: "100%", flexDirection: "column" }}
+      style={{
+        display: "flex",
+        overflowY: "scroll",
+        height: "100%",
+        flexDirection: "column",
+      }}
     >
       <MainPreview
         show={previewState}
