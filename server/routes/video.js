@@ -126,13 +126,21 @@ const videoSockets = (socket, stream, database) => {
     }
   });
 
-  const setupMovieMetaData = async (name) => {
+  const setupMovieMetaData = async (name, index) => {
     const nameElements = name.split(".");
     const newName = nameElements[0].replace("-", " ");
     const metaData = await getMovieData(newName);
+    const errorMessages = ["Movie not found!"];
     //Will not upload movie if it's not found on the IMBd database
-    console.log("New movie metaData");
-    if (metaData === "Movie not found!") return false;
+    if (errorMessages.includes(metaData)) {
+      const message = metaData;
+      socket.emit("setFileProgress", {
+        error: message,
+        index,
+        uploadProgress: 0,
+      });
+      return;
+    }
 
     const { title } = metaData;
     const movieCollection = database
@@ -152,9 +160,8 @@ const videoSockets = (socket, stream, database) => {
     console.log("Pending", files);
     try {
       const pending = [];
-      let current;
       await asyncForEach(files, async (file) => {
-        const shouldPendData = await setupMovieMetaData(file.name);
+        const shouldPendData = await setupMovieMetaData(file.name, file.index);
         if (shouldPendData) pending.push(file);
         else return;
       });
@@ -168,13 +175,16 @@ const videoSockets = (socket, stream, database) => {
       console.log(error);
     }
   });
-  stream.on("fileUpload", (fileStream, { name }) => {
+  stream.on("fileUpload", (fileStream, { tottalSize, name, index }) => {
+    const moviePath = p.join(__dirname, "..", "/movies/", name);
+    fileStream.on("data", () => {
+      const { size } = fs.statSync(moviePath);
+      const uploadProgress = (size / tottalSize) * 100;
+      socket.emit("setFileProgress", { index, uploadProgress });
+    });
     console.log("uploading", name);
-    const writeStream = fs.createWriteStream(
-      p.join(__dirname, "..", "/movies/", name)
-    );
+    const writeStream = fs.createWriteStream(moviePath);
     fileStream.pipe(writeStream);
-    console.log(name);
   });
 };
 

@@ -5,6 +5,15 @@ import { TiArrowLeftThick } from "react-icons/ti";
 import io from "socket.io-client";
 import ss from "socket.io-stream";
 import fileReaderStream from "filereader-stream";
+import {
+  Container,
+  ListItem,
+  CircularProgress,
+  ListItemText,
+  List,
+  Typography,
+} from "@material-ui/core";
+import { FiSlack } from "react-icons/fi";
 
 const socket = io(window.location.hostname + ":5000");
 
@@ -64,26 +73,50 @@ const socket = io(window.location.hostname + ":5000");
 //   }
 // };
 
-export const uploadFile = async (files) => {
+export const uploadFile = async (files, setProgress) => {
   const filesToUpload = Object.values(files).map((file, index) => ({
     name: file.name,
+    size: file.size,
+    uploadProgress: 0,
     file,
     index,
   }));
+  setProgress(filesToUpload);
   // Request for each file for pending upload
   console.log("Client Upload");
   ss(socket).emit("pendUpload", filesToUpload);
 
   ss(socket).on("getFile", ({ name, index }) => {
     console.log("Getting File", name, index);
+    const tottalSize = filesToUpload[index].size;
     const newFileStream = ss.createStream();
-    ss(socket).emit("fileUpload", newFileStream, { name });
+    ss(socket).emit("fileUpload", newFileStream, { tottalSize, index, name });
     fileReaderStream(filesToUpload[index].file).pipe(newFileStream);
   });
+
+  socket.on("setFileProgress", ({ error, index, uploadProgress }) => {
+    setProgress((state) => {
+      console.log(state, index, error);
+      state[index].error = error;
+      state[index].uploadProgress = uploadProgress;
+      return [...state];
+    });
+  });
+};
+
+const UploadStatus = ({ error, uploadProgress, name, file }) => {
+  return (
+    <ListItem>
+      <ListItemText secondary={file.size} primary={name} />
+      {!error && <CircularProgress variant="static" value={uploadProgress} />}
+      {error && <Typography color="error">{error}</Typography>}
+    </ListItem>
+  );
 };
 
 export const Upload = ({ toggle }) => {
   const [fileData, setFile] = useState(null);
+  const [uploadProgress, setProgress] = useState(null);
 
   return (
     <Flex
@@ -109,9 +142,18 @@ export const Upload = ({ toggle }) => {
           onChange={(e) => setFile(e.target.files)}
         />
         {fileData && (
-          <Button onClick={() => uploadFile(fileData) & toggle(false)}>
+          <Button
+            onClick={() => uploadFile(fileData, setProgress) & setFile(null)}
+          >
             Upload
           </Button>
+        )}
+        {uploadProgress && (
+          <List>
+            {uploadProgress.map((progress) => (
+              <UploadStatus {...progress} />
+            ))}
+          </List>
         )}
       </Box>
     </Flex>
