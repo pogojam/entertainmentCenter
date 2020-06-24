@@ -45,7 +45,6 @@ const PrivateRoutes = ({ isLoggedIn, children }) => {
 };
 
 const AppRouter = observer(() => {
-  // const { User, handleLogout } = Auth.useContainer();
   const { logoutUser, isLoggedIn } = AuthStore;
   const User = toJS(AuthStore.user);
   const withUser = useCallback((Component) => () => <Component User={User} />, [

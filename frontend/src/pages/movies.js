@@ -15,6 +15,8 @@ import {
   interpolate,
 } from "react-spring";
 import styled from "styled-components";
+import { observable } from "mobx";
+import { observer } from "mobx-react-lite";
 
 const AnimationBox = animated(styled(Box)`
   @media (max-width: 900px) {
@@ -357,7 +359,7 @@ const Slider = ({ handleClick, category, Slide }) => {
   );
 };
 
-export default function Movies() {
+const Movies = observer(() => {
   const [upload, toggleUpload] = useState(false);
   const [player, togglePlayer] = useState(false);
   const [inspect, toggleInspect] = useState(false);
@@ -425,4 +427,5 @@ export default function Movies() {
       {upload && <Upload toggle={toggleUpload} />}
     </Box>
   );
-}
+});
+export default Movies;
