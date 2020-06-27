@@ -94,8 +94,8 @@
   },
   "scripts": {
     "start": " react-scripts  -r dotenv/config scripts/start ",
-    "production": "npm build && serve -s build -l 3000 ",
-    "dev": " node   -r dotenv/config  scripts/start HOST=0.0.0.0 ",
+    "production": "serve  -s build  -l 3000  ",
+    "dev": " node  -r dotenv/config  scripts/start HOST=0.0.0.0 ",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },

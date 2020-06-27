@@ -12,7 +12,7 @@ export default createMuiTheme({
       main: "#4a148c",
     },
     secondary: {
-      main: "#1565c0",
+      main: "#a6caf2",
     },
     error: {
       main: "#e50000",

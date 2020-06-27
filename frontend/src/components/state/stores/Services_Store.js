@@ -5,6 +5,7 @@ import {
   QUERY_Bills,
   MUTATION_changeBill,
 } from "../../dash/Dash_Graphql";
+import moment from "moment";
 
 class ServicesStore {
   @observable status = "pending";
@@ -14,7 +15,7 @@ class ServicesStore {
 
   get getBills() {
     const bills = toJS(this.bills);
-    return bills.ids.map((id) => this.bills[id]);
+    return bills.ids.map((id) => toJS(this.bills[id]));
   }
 
   @action.bound
@@ -41,7 +42,9 @@ class ServicesStore {
         variables: { service },
       });
       data.getBills.forEach((bill) => {
+        bill.dueDate = moment(bill.dueDate._seconds).format("MM/DD/YYYY");
         this.bills[bill.id] = bill;
+
         if (!this.bills.ids.includes(bill.id)) {
           this.bills.ids.push(bill.id);
         }

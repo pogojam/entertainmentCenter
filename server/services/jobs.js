@@ -14,7 +14,7 @@ const adjustDate = (dueDate, cycle, today) => {
   }
 };
 
-cron.schedule("1 * * * * *", async () => {
+cron.schedule("00 30 11 * * 1-7", async () => {
   console.log("fire cron");
   const today = new Date();
   const services = await database.collection("service").get();

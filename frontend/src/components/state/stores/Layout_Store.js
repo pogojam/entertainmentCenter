@@ -6,7 +6,6 @@ class LayoutStore {
   @observable drawer = { isOpen: false, side: "left", Component: [] };
   @action changePage = (index) => {
     this.page = index;
-    console.log(this.page);
   };
   @action openDrawer = (drawerItem) => {
     this.drawer.isOpen = true;
@@ -24,7 +23,5 @@ const hydrater = create({
 });
 const store = (window.store = new LayoutStore());
 export default store;
-hydrater("LayoutStore", store).then(() => {
-  console.log("Store persisted LayoutStore");
-});
+hydrater("LayoutStore", store).then(() => {});
 autorun(() => {});

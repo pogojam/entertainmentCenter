@@ -5,11 +5,10 @@ import ss from "socket.io-stream";
 import { Box, Heading } from "rebass";
 
 const socket = io(window.location.hostname + ":5000");
-const stream = ss.createStream();
 
-stream.on("data", (stream) => {
-  console.log(stream);
-});
+// stream.on("data", (stream) => {
+//   console.log(stream);
+// });
 
 const handleStream = (cb) => {
   console.log("object");

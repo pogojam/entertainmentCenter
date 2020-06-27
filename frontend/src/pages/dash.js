@@ -15,7 +15,6 @@ import { toJS } from "mobx";
 import DashStore from "../components/state/stores/Dash_Store";
 import ServicesStore from "../components/state/stores/Services_Store";
 import Loader from "../components/loader";
-import { TiHeadphones } from "react-icons/ti";
 
 const HomePageContent = observer(({ role }) => {
   const classes = useStyles();
@@ -40,13 +39,13 @@ const HomePageContent = observer(({ role }) => {
   }
 });
 const UtilityPageContent = observer(({ role }) => {
-  const { getServices, getServiceBills, getBills } = ServicesStore;
+  const { getServices, getBills } = ServicesStore;
   const services = toJS(ServicesStore.services);
-  const bills = toJS(ServicesStore.bills);
 
   useEffect(() => {
     getServices();
   }, []);
+  console.log(services);
 
   if (ServicesStore.status === "pending") return <Loader />;
   switch (role) {
@@ -135,7 +134,7 @@ const Nav = observer(() => {
     <AppBar position="relative">
       <Tabs value={DashStore.page} onChange={handleChange}>
         {Pages.map(({ title, icon: Icon }, i) => (
-          <Tab label={title} value={title} icon={<Icon></Icon>} />
+          <Tab key={i} label={title} value={title} icon={<Icon></Icon>} />
         ))}
       </Tabs>
     </AppBar>
@@ -146,12 +145,13 @@ export default observer(function Dash() {
   const classes = useStyles();
   const match = useRouteMatch();
   return (
-    <Box height="100%">
+    <Box>
       <Nav />
       <Box mx={4} className={classes.container}>
         <Switch>
-          {Pages.map(({ title, Content }) => (
+          {Pages.map(({ title, Content }, i) => (
             <Route
+              key={i}
               path={match.url + "/" + title}
               component={() => <Content role="admin" />}
             />

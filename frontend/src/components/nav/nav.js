@@ -9,6 +9,10 @@ import { pages } from "../../pages/build.json";
 import AuthStore from "../state/stores/Auth_Store";
 
 const StyledButton = styled(Button)`
+  &:focus {
+    border: none;
+    outline: none;
+  }
   transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   &:hover {
     transform: scale(1.2);

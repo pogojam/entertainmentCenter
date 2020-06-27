@@ -23,6 +23,7 @@ const Layout = ({ children }) => {
         height: "100%",
         paddingTop: "5em",
         maxHeight: "calc(100vh - 5em)",
+        overflowY: "scroll",
       }}
     >
       {children}

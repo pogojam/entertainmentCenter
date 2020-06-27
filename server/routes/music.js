@@ -10,34 +10,32 @@ const scripts = {
 };
 
 const musicSockets = (socket, stream, database) => {
-  stream.emit("startCapture", (stream, data) => {
-    // const displays = execFile("../workers/setupRecording.sh", ["dev"], {
-    //   deatached: true
-    // });
-    // displays.stdout.on("data", data => {
-    //   console.log(data.toString());
-    // });
-
-    const child = spawn(`ffmpeg`, [
-      "-f",
-      "avfoundation",
-      "-i",
-      "1|1",
-      "output.mkv",
-    ]);
-
-    child.on("exit", (code) => {
-      console.log(`Child process exited with code ${code}`);
-    });
-    child.stdout.on("data", (data) => {
-      const recording = path.basename(`../output.mkv`);
-      const screenCapture = fs.createReadStream(recording);
-      screenCapture.pipe(stream);
-    });
-    child.stderr.on("data", (data) => {
-      console.log(`stderr: ${data}`);
-    });
-  });
+  // stream.emit("startCapture", (stream, data) => {
+  //   // const displays = execFile("../workers/setupRecording.sh", ["dev"], {
+  //   //   deatached: true
+  //   // });
+  //   // displays.stdout.on("data", data => {
+  //   //   console.log(data.toString());
+  //   // });
+  //   const child = spawn(`ffmpeg`, [
+  //     "-f",
+  //     "avfoundation",
+  //     "-i",
+  //     "1|1",
+  //     "output.mkv",
+  //   ]);
+  //   child.on("exit", (code) => {
+  //     console.log(`Child process exited with code ${code}`);
+  //   });
+  //   child.stdout.on("data", (data) => {
+  //     const recording = path.basename(`../output.mkv`);
+  //     const screenCapture = fs.createReadStream(recording);
+  //     screenCapture.pipe(stream);
+  //   });
+  //   child.stderr.on("data", (data) => {
+  //     console.log(`stderr: ${data}`);
+  //   });
+  // });
 };
 
 musicRoutes.get("/", (req, res) => {});

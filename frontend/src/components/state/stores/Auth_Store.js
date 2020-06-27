@@ -11,7 +11,6 @@ class AuthStore {
     auth.onAuthStateChanged((user) => {
       if (user) {
         const id = [user.uid];
-        // this.setUser(user);
         user.getIdToken().then((tk) => {
           localStorage.setItem("token", tk);
           localStorage.setItem("uid", id);
@@ -25,8 +24,8 @@ class AuthStore {
     });
   }
   //Temp logged in state for development
-  @observable @persist isLoggedIn = true;
-  @observable @persist user = {};
+  @observable isLoggedIn = true;
+  @observable @persist("object") user = {};
   @observable @persist role = "";
 
   @action getUserData = flow(function* (id) {
@@ -45,7 +44,6 @@ class AuthStore {
   @action loginUser = (index) => {
     const { email, pass } = index;
     auth.signInWithEmailAndPassword(email, pass);
-    console.log(this.user);
   };
   @action logoutUser = () => {
     auth.signOut();

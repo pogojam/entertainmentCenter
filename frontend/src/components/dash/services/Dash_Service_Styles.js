@@ -1,9 +1,15 @@
 const { makeStyles } = require("@material-ui/core");
 
 const styles = makeStyles((theme) => ({
+  iconButton: {
+    backgroundColor: theme.palette.secondary.light,
+  },
   card: {
     backgroundColor: theme.palette.secondary.main,
     padding: theme.spacing(2),
+  },
+  cardIcon: {
+    fontSize: theme.spacing(3),
   },
   bill: {
     backgroundColor: theme.palette.secondary.dark,

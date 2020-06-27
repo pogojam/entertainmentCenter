@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Redirect } from "react-router-dom";
 import AuthStore from "../components/state/stores/Auth_Store";
-import { Box, Heading, Flex, Button } from "rebass";
+import { Box, Heading, Flex } from "rebass";
+import useStyles from "./styles";
+
 import { toJS } from "mobx";
+import {
+  Card,
+  CardContent,
+  Button,
+  TextField,
+  CardHeader,
+} from "@material-ui/core";
 const Input = styled.input``;
 
 const InputBox = styled(Box)`
@@ -15,6 +23,7 @@ const InputBox = styled(Box)`
 
 const Login = ({ initalState = true, location }) => {
   const [isLoginForm, setFormState] = useState(initalState);
+  const classes = useStyles();
 
   const { createUser, loginUser, isLoggedIn } = AuthStore;
   const User = toJS(AuthStore.user);
@@ -43,79 +52,84 @@ const Login = ({ initalState = true, location }) => {
       justifyContent="center"
       alignItems="center"
       style={{ height: "100%", width: "100%" }}
+      as="form"
     >
-      <Box
+      <Card
+        className={classes.loginContainer}
         minWidth="40%"
-        style={{ maxWidth: "400px" }}
-        bg="#22ce99"
-        as="form"
-        p="2em"
+        style={{ minWidth: "400px" }}
       >
-        <Heading>{isLoginForm ? "login" : "Signup"}</Heading>
-        <InputBox
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-evenly",
-            height: "100%",
-          }}
-        >
-          <Input
-            onChange={({ target }) => {
-              setEmail(target.value);
+        <CardHeader title={isLoginForm ? "login" : "Signup"} />
+        <CardContent>
+          <InputBox
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-evenly",
+              height: "100%",
             }}
-            name="email"
-            type="email"
-          />
-          <Input
-            onChange={({ target }) => {
-              setPass(target.value);
-            }}
-            name="password"
-            type="password"
-          />
-          {!isLoginForm && (
-            <>
-              <Input
-                onChange={({ target }) => {
-                  setFirst(target.value);
-                }}
-                placeholder="First Name"
-                name="firstName"
-                type="name"
-              />
-              <Input
-                onChange={({ target }) => {
-                  setLast(target.value);
-                }}
-                placeholder="Last Name"
-                name="lastName"
-                type="name"
-              />
-              <Input
-                onChange={({ target }) => {
-                  setCode(target.value);
-                }}
-                placeholder="Code"
-                name="code"
-              />
-            </>
-          )}
-
-          <Input type="submit" value={isLoginForm ? "Login" : "Submit"} />
-          {isLoginForm && (
-            <Button
-              onClick={() => {
-                setFormState(!isLoginForm);
+          >
+            <Input
+              onChange={({ target }) => {
+                setEmail(target.value);
               }}
-              bg="black"
-            >
-              Sign up
-            </Button>
-          )}
-        </InputBox>
-        {err && <Box>{err}</Box>}
-      </Box>
+              name="email"
+              type="email"
+            />
+            <Input
+              onChange={({ target }) => {
+                setPass(target.value);
+              }}
+              name="password"
+              type="password"
+            />
+            {!isLoginForm && (
+              <>
+                <Input
+                  onChange={({ target }) => {
+                    setFirst(target.value);
+                  }}
+                  placeholder="First Name"
+                  name="firstName"
+                  type="name"
+                />
+                <Input
+                  onChange={({ target }) => {
+                    setLast(target.value);
+                  }}
+                  placeholder="Last Name"
+                  name="lastName"
+                  type="name"
+                />
+                <Input
+                  onChange={({ target }) => {
+                    setCode(target.value);
+                  }}
+                  placeholder="Code"
+                  name="code"
+                />
+              </>
+            )}
+
+            <Box display="flex" justifyContent="space-around">
+              <Button variant="outlined" type="submit">
+                {isLoginForm ? "Login" : "Submit"}
+              </Button>
+              {isLoginForm && (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setFormState(!isLoginForm);
+                  }}
+                >
+                  Sign up
+                </Button>
+              )}
+            </Box>
+          </InputBox>
+          {err && <Box>{err}</Box>}
+        </CardContent>
+      </Card>
     </Flex>
   );
 };

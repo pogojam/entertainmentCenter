@@ -104,11 +104,7 @@ const CreateService = ({ refetch }) => {
   const classes = useStyles();
   return (
     <Grid item xs={12}>
-      <Card
-        className={classes.card}
-        alignItems="center"
-        justifyContent="space-around"
-      >
+      <Card className={classes.card}>
         <CardHeader title="New Utility Service" />
         <CardContent>
           <AddServiceForm refetch={refetch} />
@@ -170,7 +166,6 @@ const RemoveServiceForm = () => {
   return (
     <Grid
       spacing={2}
-      alignContent="center"
       component="form"
       style={{ width: "100%", justifyContent: "center", height: "100%" }}
       container
@@ -259,11 +254,11 @@ const Slider = ({ children, name }) => {
       >
         <Card className={classes.card} width="100%">
           <CardHeader
-            avatar={<Icon type={"water"} />}
+            avatar={<Icon className={classes.cardIcon} type={"water"} />}
             title={name}
             subheader="Bills on file"
             action={
-              <IconButton onClick={toggleMenu}>
+              <IconButton className={classes.iconButton} onClick={toggleMenu}>
                 {" "}
                 <Icon type="drag" />{" "}
               </IconButton>
@@ -277,8 +272,9 @@ const Slider = ({ children, name }) => {
     </Grid>
   );
 };
-export const Bill = ({ pastDue, amount, date }) => {
+export const Bill = ({ pastDue, amount, dueDate: date }) => {
   const classes = useStyles();
+  console.log(date, amount);
   return (
     <Grid item>
       <Card className={classes.bill}>

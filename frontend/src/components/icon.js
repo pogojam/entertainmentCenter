@@ -31,11 +31,12 @@ import {
   MdLocationOn,
   MdRemoveCircleOutline,
 } from "react-icons/md";
-import { MdDragHandle } from "react-icons/md";
+import { MdDragHandle, MdLocalGasStation } from "react-icons/md";
 import {
   GiVolleyballBall,
   GiBasketballJersey,
   GiSoccerBall,
+  GiElectric,
 } from "react-icons/gi";
 import {
   DiDocker,
@@ -110,6 +111,10 @@ const Shirt = ({ size }) => {
 
 const Icon = ({ type, ...props }) => {
   switch (type) {
+    case "electric":
+      return withProps(GiElectric, props);
+    case "gas":
+      return withProps(MdLocalGasStation, props);
     case "exit":
       return withProps(MdRemoveCircleOutline, props);
     case "terminal":

@@ -80,90 +80,91 @@ const styles = {
   },
 };
 
-const Menu = ({
-  drawerItem: Drawer,
-  tabBarPeek = 19,
-  toggleMenu: toggleMenuExternal,
-  menuStatus: toggleMenuExternalStatus,
-  children,
-  side,
-  className,
-  mouseLeave,
-  invert,
-  ...props
-}) => {
-  const ref = useRef();
-  const mounted = useRef(false);
-  const size = useSize(ref);
-  const [toggleStatus, toggle] = useToggle(false);
-  const showMenu =
-    typeof toggleMenuExternalStatus !== "undefined"
-      ? toggleMenuExternalStatus
-      : toggleStatus;
+const Menu = React.memo(
+  ({
+    drawerItem: Drawer,
+    tabBarPeek = 19,
+    toggleMenu: toggleMenuExternal,
+    menuStatus: toggleMenuExternalStatus,
+    children,
+    side,
+    className,
+    mouseLeave,
+    invert,
+    ...props
+  }) => {
+    const ref = useRef();
+    const mounted = useRef(false);
+    const size = useSize(ref);
+    const [toggleStatus, toggle] = useToggle(false);
+    const showMenu =
+      typeof toggleMenuExternalStatus !== "undefined"
+        ? toggleMenuExternalStatus
+        : toggleStatus;
 
-  const anim = useSpring(
-    side
-      ? animation[side](showMenu, size, tabBarPeek)
-      : animation.bottom(showMenu, size, tabBarPeek)
-  );
-  useEffect(() => {
-    mounted.current = true;
-    return () => (mounted.current = false);
-  }, []);
+    const anim = useSpring(
+      side
+        ? animation[side](showMenu, size, tabBarPeek)
+        : animation.bottom(showMenu, size, tabBarPeek)
+    );
+    useEffect(() => {
+      console.log(side);
+      mounted.current = true;
+      return () => (mounted.current = false);
+    }, []);
 
-  return (
-    <MenuContainer
-      onMouseLeave={mouseLeave && mouseLeave}
-      className="Menu_Container"
-      {...props}
-    >
-      {children}
-      <animated.div ref={ref} className="Slide" style={anim}>
-        <div
-          className="Menu_Icon_Container"
-          onClick={() => {
-            if (toggleMenuExternal) {
-              toggleMenuExternal();
-            } else {
-              toggle();
-            }
-          }}
-          style={{
-            ...styles[side].container,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {showMenu ? (
-            <Icon
-              className="Menu_Icon"
-              style={styles[side].icon}
-              className="Icon"
-              type="drag"
-            />
-          ) : (
-            <Icon
-              className="Menu_Icon"
-              style={styles[side].icon}
-              className="Icon"
-              type="drag"
-            />
-          )}
-        </div>
-        <div
-          style={{
-            opacity: showMenu ? 1 : 0,
-            transition: "opacity .8s linear",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <Drawer />
-        </div>
-      </animated.div>
-    </MenuContainer>
-  );
-};
+    return (
+      <MenuContainer
+        onMouseLeave={mouseLeave && mouseLeave}
+        className="Menu_Container"
+        {...props}
+      >
+        {children}
+        <animated.div ref={ref} className="Slide" style={anim}>
+          <div
+            className="Menu_Icon_Container"
+            onClick={() => {
+              if (toggleMenuExternal) {
+                toggleMenuExternal();
+              } else {
+                toggle();
+              }
+            }}
+            style={{
+              ...styles[side].container,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {showMenu ? (
+              <Icon
+                className="Menu_Icon Icon"
+                style={styles[side].icon}
+                type="drag"
+              />
+            ) : (
+              <Icon
+                className="Menu_Icon Icon"
+                style={styles[side].icon}
+                type="drag"
+              />
+            )}
+          </div>
+          <div
+            style={{
+              opacity: showMenu ? 1 : 0,
+              transition: "opacity .8s linear",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <Drawer />
+          </div>
+        </animated.div>
+      </MenuContainer>
+    );
+  }
+);
 
 export default Menu;

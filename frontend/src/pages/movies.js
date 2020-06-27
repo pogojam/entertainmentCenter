@@ -17,6 +17,8 @@ import {
 import styled from "styled-components";
 import { observable } from "mobx";
 import { observer } from "mobx-react-lite";
+import { Container } from "@material-ui/core";
+import Loader from "../components/loader";
 
 const AnimationBox = animated(styled(Box)`
   @media (max-width: 900px) {
@@ -40,7 +42,6 @@ const queryMovies = gql`
 `;
 
 const MoviePreview = memo(({ handleClick, ...data }) => {
-  const propsBackground = useSpring({ size: 1, from: { size: 3 } });
   const Container = animated(Flex);
   const containerRef = useRef(null);
 
@@ -98,21 +99,15 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
 const MainPreviewStyles = animated(styled.div`
   text-align: center;
   display: flex;
-  width: 40%;
-  height: 100%;
-  top: 0;
-  right: 0;
 
-  @media (max-width: 600px) {
-    background-color: black;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 40vh;
-    transform: translate(0, -100);
-    backdrop-filter: blur(5px);
-    background-color: #79757580;
-  }
+  background-color: black;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40vh;
+  transform: translate(0, -100);
+  backdrop-filter: blur(5px);
+  background-color: #79757580;
 `);
 const MainPreview = ({
   img,
@@ -126,7 +121,7 @@ const MainPreview = ({
   Path,
 }) => {
   const [showDrawer, setDrawer] = useState(false);
-  const isMobile = window.innerWidth < 600;
+  const isMobile = true;
   const containerRef = useRef(null);
   const ImageContainer = animated(styled(Image)`
     &::before {
@@ -139,7 +134,7 @@ const MainPreview = ({
       background: linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0));
     }
   `);
-
+  const justMounted = useRef(false);
   const playerOptions = {
     fullScreen: true,
     exit: () => togglePlayer(false),
@@ -162,7 +157,15 @@ const MainPreview = ({
   });
 
   useEffect(() => {
-    if (!isMobile) return setDrawer(true);
+    justMounted.current = true;
+    setDrawer(true);
+  }, []);
+
+  useEffect(() => {
+    if (justMounted.current) {
+      justMounted.current = false;
+      return;
+    }
     if (Title) {
       setDrawer(true);
     }
@@ -178,7 +181,6 @@ const MainPreview = ({
         position: "fixed",
         zIndex: 1,
         ...drawSlide,
-        // background: "linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0))"
       }}
     >
       {animation.map(({ item, props }, i) =>
@@ -229,7 +231,7 @@ const MainPreview = ({
               {Awards}
             </Text>
             <Card pt="1em" color="white" fontSize=".8em">
-              <Text textAlign={isMobile ? "center" : "left"}>{Plot}</Text>
+              <Text textAlign={"center"}>{Plot}</Text>
             </Card>
             <Button
               m=".5em"
@@ -301,10 +303,10 @@ const Slider = ({ handleClick, category, Slide }) => {
       let scale = ir;
       let roation = 0;
       if (wasAbove.current) {
-        // Comes from top
+        // Slide is at the top of the screeen
         roation = deg - deg * ir;
       } else {
-        roation = deg - deg * ir;
+        roation = 0;
       }
 
       wasAbove.current = isAbove;
@@ -359,7 +361,7 @@ const Slider = ({ handleClick, category, Slide }) => {
   );
 };
 
-const Movies = observer(() => {
+const Movies = () => {
   const [upload, toggleUpload] = useState(false);
   const [player, togglePlayer] = useState(false);
   const [inspect, toggleInspect] = useState(false);
@@ -367,10 +369,11 @@ const Movies = observer(() => {
   const [previewState, togglePreview] = useState(false);
   const boxRef = useRef(null);
   const categories = genres;
+  const [hasMounted, setMounted] = useState(false);
 
   const bindScroll = useWheel((e) => {
     const goingDown = e.delta[1] < 0 ? true : false;
-    const shouldChage = e.velocity > 1 ? true : false;
+    const shouldChage = e.velocity > 0.8 ? true : false;
     if (shouldChage && !goingDown) {
       return togglePreview(false);
     }
@@ -379,12 +382,28 @@ const Movies = observer(() => {
     }
   });
 
+  const mountMovies = () => {
+    setTimeout(() => {
+      setMounted(true);
+    }, 500);
+  };
+
+  useEffect((params) => {
+    mountMovies();
+  }, []);
+
+  if (!hasMounted)
+    return (
+      <Container>
+        <Loader />
+      </Container>
+    );
+
   return (
     <Box
       ref={boxRef}
       style={{
         display: "flex",
-        overflowY: "scroll",
         height: "100%",
         flexDirection: "column",
       }}
@@ -395,7 +414,7 @@ const Movies = observer(() => {
         welcome={isTop}
         {...inspect}
       />
-      <Box {...bindScroll()} mt="10vh" px={["0em", "6em"]}>
+      <Box {...bindScroll()} mt="33vh" px={["0em", "6em"]}>
         {categories.map((category, i) => {
           return (
             <Slider
@@ -427,5 +446,5 @@ const Movies = observer(() => {
       {upload && <Upload toggle={toggleUpload} />}
     </Box>
   );
-});
+};
 export default Movies;

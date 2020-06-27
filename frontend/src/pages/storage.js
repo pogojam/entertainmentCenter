@@ -61,7 +61,6 @@ const DirectoryCard = ({ name, fileName, dir, path, subRefetch, ...props }) => {
   const handleRefetch = (fetch) => {
     fetch();
     set(data.getFiles);
-    console.log(data);
   };
 
   const rotateArrow = useSpring(
@@ -160,8 +159,6 @@ export default function Storage() {
   const { loading, data, error, refetch } = useQuery(QUERY, {
     variables: { input: "/" },
   });
-
-  !loading && console.log(data);
 
   return (
     <Flex
