@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon  -r dotenv/config index.js ",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "author": "",
   "license": "ISC",
@@ -29,6 +31,8 @@
     "socket.io": "^2.2.0",
     "socket.io-stream": "^0.9.1",
     "stripe": "^8.4.0",
-    "uuid": "^3.4.0"
-  }
+    "uuid": "^3.4.0",
+    "snyk": "^1.414.1"
+  },
+  "snyk": true
 }
