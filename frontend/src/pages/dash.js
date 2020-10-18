@@ -56,7 +56,7 @@ const UtilityPageContent = observer(({ role }) => {
           <Service.CreateService refetch={services} />
           {services.map(({ name }, i) => (
             <Service.Slider key={i} name={name}>
-              {getBills
+              {getBills.length === 0 ? <Loader/> : getBills
                 .filter((e) => e.service === name)
                 .map((billData) => (
                   <Service.Bill {...billData} />

@@ -28,7 +28,6 @@ io.on("connect", (socket) => {
   videoSockets(socket, stream, database);
   musicSockets(socket, stream, database);
   storageSockets(socket);
-  console.log("Connected sockets " + connections.length, connections);
 });
 
 server.listen(port, () => console.log("server up on port " + port));

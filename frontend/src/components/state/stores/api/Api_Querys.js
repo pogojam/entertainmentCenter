@@ -29,3 +29,18 @@ export const QUERY_Bills = gql`
     }
   }
 `;
+
+export const QUERY_Movies = gql`
+  query getMovies($input: String) {
+    getMovies(input: $input) {
+      Title
+      Rated
+      Year
+      Awards
+      Genre
+      Plot
+      Poster
+      Path
+    }
+  }
+`;

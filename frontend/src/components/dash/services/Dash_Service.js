@@ -19,11 +19,15 @@ import {
   TextField,
   FormControl,
   Button,
-  Input,
   IconButton,
   Tabs,
   Tab,
   Paper,
+  Input,
+  InputLabel,
+  InputAdornment,
+  fade,
+  Fade
 } from "@material-ui/core";
 import { useTransition, animated } from "react-spring";
 
@@ -116,68 +120,64 @@ const CreateService = ({ refetch }) => {
 
 const AddBillForm = () => {
   const classes = useStyles();
+  const [values,setValues] = useState({
+    amount:0,
+    date:""
+  })
   const handleSubmit = () => {
     //
   };
 
-  const handleChange = () => {
+  const handleChange = (type) =>(event)=> {
+   setValues({...values,[type]:event.target.value}) 
     //
   };
 
   return (
     <Grid container className={classes.formAddBill} onSubmit={handleSubmit}>
-      <Grid item>
-        <FormControl>
-          <FormLabel>Cycle Every</FormLabel>
-          <TextField
-            style={{ textAlign: "center" }}
-            placeholder="In days"
-            onChange={(e) => handleChange(e)}
-            type="number"
-          />
-        </FormControl>
-      </Grid>
-      <Grid item>
-        <FormControl>
-          <FormLabel>Start Date</FormLabel>
+      <Grid xs={12} item>
+        <FormControl fullWidth >
+          <FormLabel>Due Date</FormLabel>
           <TextField type="date" onChange={(e) => handleChange(e)} />
         </FormControl>
       </Grid>
-      <Grid item>
-        <FormControl>
-          <FormLabel>Service</FormLabel>
-          <TextField
-            type="text"
-            style={{ textAlign: "center" }}
-            placeholder="Service Name"
-            onChange={(e) => handleChange(e)}
+      <Grid xs={12}item>
+      <FormControl fullWidth className={classes.margin}>
+          <InputLabel htmlFor="standard-adornment-amount">Amount</InputLabel>
+          <Input
+            id="standard-adornment-amount"
+            value={values.amount}
+            onChange={handleChange('amount')}
+            startAdornment={<InputAdornment position="start">$</InputAdornment>}
           />
         </FormControl>
       </Grid>
-      <Grid item>
-        <Button variant="outlined" size="medium" type="submit">
-          Submit
+      <Grid  xs={12} item>
+        <Button className={classes.menuButton}  variant="outlined" size="medium" type="submit">
+          Add
         </Button>
       </Grid>
     </Grid>
   );
 };
 const RemoveServiceForm = () => {
+  const classes = useStyles()
   return (
     <Grid
       spacing={2}
       component="form"
-      style={{ width: "100%", justifyContent: "center", height: "100%" }}
+      className= {classes.formAddBill}
       container
     >
       <Grid item>
         <FormControl>
-          <TextField placeholder="Service Name" />
+          <TextField variant="outlined" placeholder="Service Name" />
         </FormControl>
       </Grid>
       <Grid item>
         <Button variant="outlined">Delet</Button>
       </Grid>
+      <Typography style={{position:'absolute',bottom:0,}} color="error">Enter the service name to delete</Typography>
     </Grid>
   );
 };
@@ -273,10 +273,15 @@ const Slider = ({ children, name }) => {
   );
 };
 export const Bill = ({ pastDue, amount, dueDate: date }) => {
+  const [hasMounted , setMount] = useState(false)
   const classes = useStyles();
-  console.log(date, amount);
+  useEffect(()=>{
+setMount(true)
+  },[])
   return (
-    <Grid item>
+<Fade in={hasMounted}>
+    
+    <Grid  item>
       <Card className={classes.bill}>
         <Box px={2}>
           <CardContent>
@@ -290,6 +295,7 @@ export const Bill = ({ pastDue, amount, dueDate: date }) => {
         {pastDue && <PastDueTab className={classes.tab} />}
       </Card>
     </Grid>
+</Fade>
   );
 };
 const PastDueTab = (props) => (

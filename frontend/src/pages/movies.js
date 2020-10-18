@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, memo } from "react";
 import { Upload, VideoPlayer } from "../components/upload";
-import { Box, Image, Flex, Button, Card, Heading, Text } from "rebass";
+import { Box, Image, Flex, Heading, Text } from "rebass";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import genres from "../library/genres.json";
 import { useObserver } from "../util";
@@ -15,10 +15,10 @@ import {
   interpolate,
 } from "react-spring";
 import styled from "styled-components";
-import { observable } from "mobx";
 import { observer } from "mobx-react-lite";
-import { Container } from "@material-ui/core";
+import { Container,Typography, CardMedia,Button, CardHeader ,CardContent,Card} from "@material-ui/core";
 import Loader from "../components/loader";
+import MovieStore from '../components/state/stores/Movie_Store'
 
 const AnimationBox = animated(styled(Box)`
   @media (max-width: 900px) {
@@ -41,7 +41,7 @@ const queryMovies = gql`
   }
 `;
 
-const MoviePreview = memo(({ handleClick, ...data }) => {
+const MovieCard= memo(({ handleClick, ...data }) => {
   const Container = animated(Flex);
   const containerRef = useRef(null);
 
@@ -67,7 +67,7 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
       borderRadius="3px"
       ref={containerRef}
       onClick={(e) => {
-        handleClick(data);
+        MovieStore.setActivePreviewMovie(data)
       }}
       onMouseMove={({ clientX: x, clientY: y }) => set({ xys: calc(x, y) })}
       onMouseLeave={() => set({ xys: [0, 0, 1] })}
@@ -82,25 +82,14 @@ const MoviePreview = memo(({ handleClick, ...data }) => {
         width: "15em",
         borderRadius: "15px",
       }}
-    >
-      {/* <Image
-        src={data.Poster}
-        borderRadius="3px"
-        style={{
-          height: "100%",
-          zIndex: "-1",
-          transform: `scale(${propsBackground.size})`
-        }}
-      /> */}
-    </Container>
+    />
   );
 });
 
 const MainPreviewStyles = animated(styled.div`
-  text-align: center;
+  z-index:1;
+  position:fixed;
   display: flex;
-
-  background-color: black;
   top: 0;
   left: 0;
   width: 100%;
@@ -116,30 +105,12 @@ const MainPreview = ({
   Poster,
   Awards,
   Title,
-  togglePlayer,
   show,
   Path,
 }) => {
   const [showDrawer, setDrawer] = useState(false);
-  const isMobile = true;
   const containerRef = useRef(null);
-  const ImageContainer = animated(styled(Image)`
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(rgb(2, 2, 2) 60%, rgba(0, 0, 0, 0));
-    }
-  `);
   const justMounted = useRef(false);
-  const playerOptions = {
-    fullScreen: true,
-    exit: () => togglePlayer(false),
-    Path,
-  };
 
   const transition = {
     config: (item, type) => {
@@ -156,10 +127,7 @@ const MainPreview = ({
     transform: showDrawer ? "translate(0,0%)" : "translate(0,-100%)",
   });
 
-  useEffect(() => {
-    justMounted.current = true;
-    setDrawer(true);
-  }, []);
+  
 
   useEffect(() => {
     if (justMounted.current) {
@@ -176,74 +144,49 @@ const MainPreview = ({
   return (
     <MainPreviewStyles
       ref={containerRef}
-      className="MainPreview"
       style={{
-        position: "fixed",
-        zIndex: 1,
         ...drawSlide,
       }}
     >
       {animation.map(({ item, props }, i) =>
         item ? (
-          <AnimationBox
+          <Card
             key={i}
-            p={["10px", "3em"]}
             style={{
+              
               right: 0,
+              backgroundColor:'transparent',
               position: "absolute",
               height: "100%",
               width: "100%",
-              flexDirection: "column",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-evenly",
               ...props,
             }}
           >
-            <AnimationCard
-              width={["50vw"]}
-              style={{
-                left: 0,
-                top: 0,
+            
+                <CardMedia style={{position:'absolute',zIndex:-1,opacity:.8}} component="img" src={Poster.replace("300",window.innerWidth)} />
 
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                ...props,
-              }}
+            <Typography
+variant="h1"
+           style={{textAlign:'left',marginTop:'70px',letterSpacing:'6px'}} 
             >
-              {!isMobile && (
-                <ImageContainer borderRadius={"6px"} m="3em" src={Poster} />
-              )}
-            </AnimationCard>
-
-            <Heading
-              color="#d6d6d6"
-              fontSize={["6vw", "4em"]}
-              style={{ whiteSpace: "nowrap" }}
-              letterSpacing="16px"
-            >
-              {Title}
-            </Heading>
-            <Text textAlign="center" color="white" fontSize=".4em">
+            {Title}</Typography>
+            <Text textAlign="center"  >
               {Year}
-              <hr style={{ color: "white", width: "40%" }} />
+              <hr style={{background:'black',border:'none',height:'1px', width: "40%" }} />
               {Awards}
             </Text>
-            <Card pt="1em" color="white" fontSize=".8em">
-              <Text textAlign={"center"}>{Plot}</Text>
-            </Card>
+
+<Box maxWidth={'300px'} m={2} >
+              <Typography textAlign={"left"}>{Plot}</Typography>
+</Box>
             <Button
-              m=".5em"
-              onClick={() => togglePlayer(playerOptions)}
-              bg="white"
-              color="black"
-              maxWidth="8em"
-              alignSelf="center"
+            variant="outlined"
+              onClick={() => MovieStore.setPlayer(true)}
             >
               Watch
             </Button>
-          </AnimationBox>
+
+          </Card>
         ) : (
           <animated.div
             key={i}
@@ -352,7 +295,7 @@ const Slider = ({ handleClick, category, Slide }) => {
               {category}
             </Heading>
             {movieData.map((e, i) => (
-              <Slide key={i} handleClick={handleClick} {...e} />
+              <Slide key={i} {...e} />
             ))}
           </Flex>
         </animated.div>
@@ -361,12 +304,13 @@ const Slider = ({ handleClick, category, Slide }) => {
   );
 };
 
-const Movies = () => {
+const Movies = observer( () => {
   const [upload, toggleUpload] = useState(false);
   const [player, togglePlayer] = useState(false);
   const [inspect, toggleInspect] = useState(false);
   const [isTop, checkPosition] = useState(false);
   const [previewState, togglePreview] = useState(false);
+  
   const boxRef = useRef(null);
   const categories = genres;
   const [hasMounted, setMounted] = useState(false);
@@ -409,20 +353,16 @@ const Movies = () => {
       }}
     >
       <MainPreview
-        show={previewState}
-        togglePlayer={togglePlayer}
-        welcome={isTop}
-        {...inspect}
+        show={MovieStore.showPreview}
+        {...MovieStore.activePreviewMovie}
       />
       <Box {...bindScroll()} mt="33vh" px={["0em", "6em"]}>
         {categories.map((category, i) => {
           return (
             <Slider
-              Slide={MoviePreview}
+              Slide={MovieCard}
               containerRef={boxRef}
-              handleClick={toggleInspect}
               key={categories + i}
-              togglePlayer={togglePlayer}
               category={category}
             />
           );
@@ -437,14 +377,15 @@ const Movies = () => {
           right: "0",
           bottom: "-3px",
           zIndex: 4,
+          borderTopRightRadius:0
         }}
       >
         {" "}
         Contribute
       </Button>
-      {player && <VideoPlayer videoName={"ballers"} {...player} />}
+      {MovieStore.showPlayer && <VideoPlayer videoName={"ballers"} {...player} />}
       {upload && <Upload toggle={toggleUpload} />}
     </Box>
   );
-};
+} );
 export default Movies;

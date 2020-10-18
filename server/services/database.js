@@ -146,6 +146,7 @@ const movie = {
         output.push(e.data());
       }
     });
+    console.log(output)
 
     return output;
   },

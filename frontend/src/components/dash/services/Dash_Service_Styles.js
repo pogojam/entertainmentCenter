@@ -30,7 +30,7 @@ const styles = makeStyles((theme) => ({
   formAddBill: {
     height: "100%",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
   },
   tab: {
     position: "absolute",
@@ -44,6 +44,18 @@ const styles = makeStyles((theme) => ({
     color: theme.palette.primary.contrastText,
     height: "100%",
   },
+  menuButtonContainer:{
+    position:'absolute',
+    right:0,
+    height:'100%'
+  },
+  menuButton:{
+    height:'100%',
+    
+  },
+  menuTabs:{
+flexBasis:'25%'
+  },
   menuSubmenu: {
     height: "100%",
     backgroundColor: theme.palette.secondary.light,
@@ -53,5 +65,6 @@ const styles = makeStyles((theme) => ({
     alignContent: "center",
     padding: theme.spacing(1),
   },
+  
 }));
 export default styles;
